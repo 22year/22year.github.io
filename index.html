@@ -684,7 +684,7 @@
 
             <div class="panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <h2>👥 ตารางสรุปรายการคิวแยกตามไอเทม (Card Item 3 คอลัมน์)</h2>
+                    <h2>👥 ตารางสรุปรายการคิวแยกตามไอเทม</h2>
                     <button id="btnPreviewReport" class="btn-grey" style="font-size: 14px; display: none;" onclick="openImagePreviewModalAll()">🖼️ Preview รูปภาพรวมทุกไอเทม</button>
                 </div>
 
@@ -1302,7 +1302,7 @@
         const activeItemIds = Object.keys(calculatedMultiResults);
         if (activeItemIds.length === 0) return alert('ไม่มีข้อมูลคิวสำหรับ Preview!');
 
-        document.getElementById('imagePreviewModalTitle').innerText = `🖼️ Preview รูปภาพรวมตารางคิว (Card Item 3 คอลัมน์)`;
+        document.getElementById('imagePreviewModalTitle').innerText = `🖼️ Preview รูปภาพรวมตารางคิว`;
         generateMultiQueueCanvasGrid3Col(activeItemIds);
     }
 
