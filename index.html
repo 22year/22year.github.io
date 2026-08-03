@@ -2837,7 +2837,7 @@
                             ctx.fillText(`${i + 1}. (ช่องว่างสมาชิก)`, cardX + 14, slotY + 21);
                         }
 
-                        slotY + 36;
+                        slotY += 36; // <-- แก้ไขตรงนี้จากเดิมเป็น slotY + 36 เฉยๆ
                     }
                 }
                 currentY += currentCardHeight + cardGap;
