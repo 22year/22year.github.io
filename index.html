@@ -717,7 +717,7 @@
 
                 <div class="sticky-member-container" id="stickyMemberContainer">
                     <h4 style="margin: 0 0 5px 0; color: var(--primary-blue);">👥 รายชื่อสมาชิกทั้งหมด (ลากเพื่อสลับเข้าปาร์ตี้ได้)</h4>
-                    <div id="guildMemberListDraggable" style="display: flex; gap: 8px; flex-wrap: wrap; min-height: 45px; align-items: center;"></div>
+                    <div id="guildMemberListDraggable" style="display: flex; gap: 8px; flex-wrap: wrap; min-height: 45px; align-items: center;" ondragover="allowDrop(event)" ondrop="dropToGuildList(event)"></div>
                 </div>
 
                 <div id="partyListContainer" class="party-grid-4col"></div>
@@ -823,8 +823,20 @@
         <div id="adminPanel" class="tab-content">
             <div class="panel">
                 <h2>🛠️ Admin Control Panel (ศูนย์ควบคุมระบบ)</h2>
-                <p style="color: var(--text-muted);">หน้านี้มีไว้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น สำหรับจัดการสำรองข้อมูล นำเข้า และล้างค่าระบบ</p>
+                <p style="color: var(--text-muted);">หน้านี้มีไว้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น สำหรับจัดการสำรองข้อมูล นำเข้า และตั้งค่าระบบ</p>
                 
+                <div class="admin-box" style="border-color: var(--btn-purple); background: #f4ecf7;">
+                    <h3 style="color: var(--btn-purple);">🤖 ตั้งค่า Discord Webhook</h3>
+                    <p style="margin: 5px 0; font-size: 14px;">ใส่ Discord Webhook URL เพื่อใช้สำหรับส่งแจ้งเตือนการแจกไอเทมอัตโนมัติ:</p>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>Discord Webhook URL:</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="adminDiscordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+                            <button class="btn-purple" onclick="saveAdminWebhookUrl()">💾 บันทึก Webhook</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="admin-box">
                     <h3>📤 1. Export (สำรอง/ส่งออกข้อมูล)</h3>
                     <p style="margin: 5px 0; font-size: 14px;">เลือกขอบเขตข้อมูลที่ต้องการ Export ออกเป็นไฟล์ JSON:</p>
@@ -891,24 +903,6 @@
             <div style="display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn-grey" onclick="closeSelectMemberModal()">ยกเลิก</button>
                 <button class="btn-green" onclick="confirmAddSelectedMembers()">➕ เพิ่มรายการที่เลือก</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="addPartyMemberModal" class="modal">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header">
-                <h3 style="margin:0;" id="addPartyModalTitle">⚔️ เพิ่มสมาชิกเข้าปาร์ตี้</h3>
-                <span class="modal-close" onclick="closeAddPartyMemberModal()">&times;</span>
-            </div>
-            <input type="hidden" id="targetPartyId">
-            <div class="form-group">
-                <label>เลือกสมาชิกในกิลด์:</label>
-                <select id="partyMemberSelect"></select>
-            </div>
-            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 20px;">
-                <button class="btn-grey" onclick="closeAddPartyMemberModal()">ยกเลิก</button>
-                <button class="btn-green" onclick="confirmAddPartyMember()">➕ เพิ่มเข้าปาร์ตี้</button>
             </div>
         </div>
     </div>
@@ -988,6 +982,11 @@
             el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
         });
 
+        const webhookInput = document.getElementById('adminDiscordWebhookUrl');
+        if (webhookInput) {
+            webhookInput.value = localStorage.getItem('ro_discord_webhook') || '';
+        }
+
         initApp();
     }
 
@@ -997,6 +996,40 @@
         document.getElementById('loginScreen').style.display = 'block';
         document.getElementById('loginUser').value = '';
         document.getElementById('loginPass').value = '';
+    }
+
+    function saveAdminWebhookUrl() {
+        const url = document.getElementById('adminDiscordWebhookUrl').value.trim();
+        localStorage.setItem('ro_discord_webhook', url);
+        alert('✅ บันทึก Discord Webhook URL เรียบร้อยแล้ว!');
+    }
+
+    async function sendDiscordWebhookNotification(content) {
+        const webhookUrl = localStorage.getItem('ro_discord_webhook');
+        if (!webhookUrl) {
+            alert('⚠️ ยังไม่ได้ตั้งค่า Discord Webhook URL ในหน้า Admin Control Panel');
+            return false;
+        }
+
+        try {
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: content })
+            });
+
+            if (response.ok || response.status === 204) {
+                alert('✅ ส่งแจ้งเตือนผ่าน Discord Webhook สำเร็จ!');
+                return true;
+            } else {
+                alert('❌ เกิดข้อผิดพลาดในการส่ง Discord Webhook (สถานะ: ' + response.status + ')');
+                return false;
+            }
+        } catch (error) {
+            console.error(error);
+            alert('❌ ไม่สามารถเชื่อมต่อกับ Discord Webhook ได้ (ตรวจสอบ URL หรือ CORS Policy)');
+            return false;
+        }
     }
 
     let items = JSON.parse(localStorage.getItem('ro_items')) || [
@@ -1020,7 +1053,10 @@
 
     let queues = JSON.parse(localStorage.getItem('ro_queues')) || [];
     let dailyLogs = JSON.parse(localStorage.getItem('ro_daily_logs')) || [];
-    let parties = JSON.parse(localStorage.getItem('ro_parties')) || [];
+    let parties = JSON.parse(localStorage.getItem('ro_parties')) || [
+        { id: 1, name: "Party Main 1", type: "main", memberIds: [1, 2] },
+        { id: 2, name: "Party Sub 1", type: "sub", memberIds: [3] }
+    ];
 
     let calculatedMultiResults = {};
 
@@ -1285,6 +1321,7 @@
                     </div>
                     <div style="display: flex; gap: 4px;">
                         <button class="btn-purple" style="padding: 3px 6px; font-size: 11px;" onclick="copySingleItemDiscordReport(${itemId})" title="Copy Discord">📋</button>
+                        <button class="btn-purple" style="padding: 3px 6px; font-size: 11px; background: #2980b9;" onclick="sendSingleDiscordWebhook(${itemId})" title="ส่ง Discord Webhook">🤖 แจ้งเตือน</button>
                         <button class="btn-green" style="padding: 3px 6px; font-size: 11px;" onclick="commitDistribution(${itemId})" title="ยืนยันการแจก">✅</button>
                     </div>
                 </div>
@@ -1296,6 +1333,24 @@
         });
 
         container.appendChild(gridWrapper);
+    }
+
+    async function sendSingleDiscordWebhook(itemId) {
+        const item = items.find(i => i.id === itemId);
+        const recipients = calculatedMultiResults[itemId];
+        if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
+
+        let text = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name}**\n`;
+        text += `----------------------------------------\n`;
+        recipients.forEach((rec, idx) => {
+            const member = members.find(m => m.id === rec.memberId);
+            const job = jobs.find(j => j.id === member.jobId) || { name: '' };
+            let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
+            text += `${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}\n`;
+        });
+        text += `----------------------------------------`;
+
+        await sendDiscordWebhookNotification(text);
     }
 
     function openImagePreviewModalAll() {
@@ -1995,7 +2050,6 @@
 
         const todayIso = getTodayISO();
 
-        // ประมวลผลรายบุคคลตามเงื่อนไขที่กำหนด
         recipients.forEach(rec => {
             totalGivenStock += rec.giveCount;
 
@@ -2003,7 +2057,6 @@
             if (entry) {
                 entry.received = (entry.received || 0) + rec.giveCount;
                 
-                // เงื่อนไขข้อ 2: คนที่ได้รับของยังไม่ครบ (ให้ขึ้นสถานะค้างรับ พร้อมลงวันที่ค้างรับ)
                 if (entry.received < item.maxPerPerson && rec.giveCount < rec.needed) {
                     entry.pending = item.maxPerPerson - entry.received;
                     entry.pendingDate = todayIso;
@@ -2015,11 +2068,10 @@
                     entry.pendingDate = null;
                 }
 
-                // เงื่อนไขข้อ 3: คนที่กด skip / ได้รับครบแล้ว ล้างค่า skip ชั่วคราว แต่บันทึกสถิติ
                 if (entry.isSkipped) {
                     entry.skipCount = (entry.skipCount || 0) + 1;
                     entry.skippedDate = todayIso;
-                    entry.isSkipped = false; // เคลียร์สถานะกด skip ชั่วคราว
+                    entry.isSkipped = false;
                 } else {
                     entry.skippedDate = null;
                 }
@@ -2056,7 +2108,6 @@
             });
         });
 
-        // ตรวจสอบคนที่ไม่ได้อยู่ในรายชื่อแจกรอบนี้ (อาจจะกด skip ไว้ตั้งแต่ต้น หรือค้างรับรอบก่อน)
         q.list.forEach(entry => {
             if (!recipients.some(r => r.memberId === entry.memberId)) {
                 if (entry.isSkipped) {
@@ -2067,11 +2118,6 @@
             }
         });
 
-        // เงื่อนไขข้อ 4: จัดเรียงลำดับคิวใหม่ตามลำดับความสำคัญ
-        // 1. คนค้างรับ (pending > 0)
-        // 2. คนที่ skip จากรอบก่อน (skippedDate มีค่า)
-        // 3. คนในคิวปกติ
-        // 4. คนที่ได้รับของครบแล้ว (วนไปต่อท้ายสุด)
         let pendingList = q.list.filter(x => (x.pending || 0) > 0);
         let skippedList = q.list.filter(x => (x.skippedDate) && !(x.pending > 0));
         let normalList = q.list.filter(x => !(x.pending > 0) && !x.skippedDate && (x.received < item.maxPerPerson));
@@ -2079,12 +2125,10 @@
 
         q.list = [...pendingList, ...skippedList, ...normalList, ...completedList];
 
-        // อัปเดตลำดับ order ใหม่ให้สอดคล้อง
         q.list.forEach((entry, idx) => {
             entry.order = idx + 1;
         });
 
-        // ตัดสต็อกสินค้า
         item.stock = Math.max(0, (item.stock || 0) - totalGivenStock);
         item.startPage = lastPage;
         item.startSlot = lastSlot;
@@ -2547,136 +2591,97 @@
         }
 
         if (parties.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; grid-column: 1 / -1;"><i>ยังไม่มีปาร์ตี้ในระบบ — กรุณากดปุ่ม <strong>"➕ สร้างปาร์ตี้ใหม่"</strong> ด้านบน</i></div>`;
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; grid-column: 1 / -1;">ยังไม่มีปาร์ตี้ในระบบ — กรุณากด "➕ สร้างปาร์ตี้ใหม่"</div>`;
             return;
         }
 
         parties.forEach((party) => {
-            const partyType = party.type || 'main';
-            let memberSlotsHtml = '';
-            
-            for (let i = 0; i < 5; i++) {
-                const memberId = party.memberIds[i];
-                if (memberId) {
-                    const member = members.find(m => m.id === memberId);
-                    const job = member ? (jobs.find(j => j.id === member.jobId) || { name: 'Unknown', iconUrl: '' }) : { name: 'Unknown', iconUrl: '' };
-                    const crownSymbol = (i === 0) ? ' 👑' : '';
+            const isMain = party.type === 'main';
+            const cardEl = document.createElement('div');
+            cardEl.className = `party-card type-${party.type || 'main'}`;
 
+            let memberSlotsHtml = '';
+            if (!party.memberIds || party.memberIds.length === 0) {
+                memberSlotsHtml = `<div style="text-align: center; color: var(--text-muted); padding: 25px; font-size: 13px;"><i>ลากสมาชิกมาวางที่นี่ หรือกดจัดการ</i></div>`;
+            } else {
+                party.memberIds.forEach((mId, mIdx) => {
+                    const member = members.find(m => m.id === mId);
+                    if (!member) return;
+                    const job = jobs.find(j => j.id === member.jobId) || { name: '', iconUrl: '' };
                     memberSlotsHtml += `
-                        <div class="party-member-slot" draggable="true" ondragstart="onDragPartyMember(event, ${party.id}, ${memberId})" ondragover="event.preventDefault()" ondrop="onDropOnSlot(event, ${party.id}, ${i})">
-                            <div style="display: flex; align-items: center; gap: 4px; overflow: hidden;">
+                        <div class="party-member-slot" draggable="true" ondragstart="dragPartyMember(event, ${party.id}, ${mId})" ondragover="allowDrop(event)" ondrop="dropPartyMember(event, ${party.id}, ${mIdx})">
+                            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+                                <span style="font-weight: bold; color: var(--primary-blue);">#${mIdx + 1}</span>
                                 ${renderJobIcon(job.iconUrl)}
-                                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>${member ? member.name : 'ถูกลบ'}${crownSymbol}</strong></div>
+                                <span style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${member.name}</span>
                             </div>
-                            <button style="background:transparent; border:none; color:#e74c3c; cursor:pointer; font-weight:bold;" onclick="removeMemberFromParty(${party.id}, ${memberId})" title="เอาออก">×</button>
+                            <button class="btn-red" style="padding: 1px 5px; font-size: 10px;" onclick="removePartyMember(${party.id}, ${mId})">×</button>
                         </div>
                     `;
-                } else {
-                    memberSlotsHtml += `
-                        <div class="party-member-slot" style="border: 1px dashed #b0c4de; background: #ffffff; color: #a0a0a0; justify-content: center;" ondragover="event.preventDefault()" ondrop="onDropOnSlot(event, ${party.id}, ${i})">
-                            <span>+ ช่องว่างสมาชิก ${i + 1}</span>
-                        </div>
-                    `;
-                }
+                });
             }
 
-            container.innerHTML += `
-                <div class="party-card type-${partyType}">
-                    <div class="party-header">
-                        <div>
-                            <h4 style="margin: 0;">${party.name}</h4>
-                            <span class="badge" style="background: ${partyType === 'main' ? '#2980b9' : '#e67e22'};">${partyType.toUpperCase()}</span>
-                        </div>
-                        <div>
-                            <button class="btn-orange" style="padding: 2px 6px; font-size: 11px;" onclick="openEditPartyModal(${party.id})">✏️</button>
-                            <button class="btn-red" style="padding: 2px 6px; font-size: 11px;" onclick="deleteParty(${party.id})">🗑️</button>
-                        </div>
+            cardEl.innerHTML = `
+                <div class="party-header">
+                    <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
+                        <input type="text" value="${party.name}" onchange="updatePartyName(${party.id}, this.value)" style="font-weight: bold; padding: 4px 8px; font-size: 13px;" placeholder="ชื่อปาร์ตี้">
                     </div>
-                    <div class="party-drop-zone" ondragover="event.preventDefault()" ondrop="onDropToParty(event, ${party.id})">
-                        ${memberSlotsHtml}
-                    </div>
+                    <select onchange="updatePartyType(${party.id}, this.value)" style="width: 85px; padding: 4px; font-size: 12px; font-weight: bold;">
+                        <option value="main" ${isMain ? 'selected' : ''}>Main</option>
+                        <option value="sub" ${!isMain ? 'selected' : ''}>Sub</option>
+                    </select>
+                </div>
+                <div class="party-drop-zone" ondragover="allowDrop(event)" ondrop="dropToParty(event, ${party.id})">
+                    ${memberSlotsHtml}
+                </div>
+                <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: var(--text-muted);">สมาชิก: ${party.memberIds.length} คน</span>
+                    <button class="btn-red" style="padding: 2px 6px; font-size: 11px;" onclick="deleteParty(${party.id})">🗑️ ลบ</button>
                 </div>
             `;
+            container.appendChild(cardEl);
         });
     }
 
-    function createNewParty() {
-        const nextId = parties.length > 0 ? Math.max(...parties.map(p => p.id)) + 1 : 1;
-        parties.push({
-            id: nextId,
-            name: `Party #${nextId}`,
-            type: nextId === 1 ? 'main' : 'sub',
-            memberIds: []
-        });
-        saveAllData();
-        renderPartyView();
+    function allowDrop(e) {
+        e.preventDefault();
     }
 
-    function deleteParty(id) {
-        if (!confirm('⚠️ ยืนยันการลบปาร์ตี้นี้?')) return;
-        parties = parties.filter(p => p.id !== id);
-        saveAllData();
-        renderPartyView();
-    }
-
-    function openEditPartyModal(id) {
-        const party = parties.find(p => p.id === id);
-        if (!party) return;
-        const newName = prompt('แก้ไขชื่อปาร์ตี้:', party.name);
-        if (newName !== null && newName.trim() !== '') {
-            party.name = newName.trim();
-            saveAllData();
-            renderPartyView();
-        }
-    }
-
-    function removeMemberFromParty(partyId, memberId) {
-        const party = parties.find(p => p.id === partyId);
-        if (party) {
-            party.memberIds = party.memberIds.filter(id => id !== memberId);
-            saveAllData();
-            renderPartyView();
-        }
-    }
-
-    function onDragPartyMember(e, partyId, memberId) {
+    function dragPartyMember(e, partyId, memberId) {
         e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'party-member', sourcePartyId: partyId, memberId: memberId }));
     }
 
-    function onDropToParty(e, targetPartyId) {
+    function dropToParty(e, targetPartyId) {
         e.preventDefault();
         try {
             const data = JSON.parse(e.dataTransfer.getData('text/plain'));
             const targetParty = parties.find(p => p.id === targetPartyId);
             if (!targetParty) return;
 
-            if (targetParty.memberIds.length >= 5) {
-                return alert('⚠️ ปาร์ตี้นี้เต็มแล้ว (สูงสุด 5 คน)');
-            }
-
             if (data.type === 'guild-member') {
                 if (!targetParty.memberIds.includes(data.memberId)) {
+                    parties.forEach(p => {
+                        p.memberIds = p.memberIds.filter(id => id !== data.memberId);
+                    });
                     targetParty.memberIds.push(data.memberId);
                     saveAllData();
                     renderPartyView();
                 }
             } else if (data.type === 'party-member') {
                 const sourceParty = parties.find(p => p.id === data.sourcePartyId);
-                if (sourceParty) {
+                if (sourceParty && !targetParty.memberIds.includes(data.memberId)) {
                     sourceParty.memberIds = sourceParty.memberIds.filter(id => id !== data.memberId);
-                }
-                if (!targetParty.memberIds.includes(data.memberId)) {
                     targetParty.memberIds.push(data.memberId);
+                    saveAllData();
+                    renderPartyView();
                 }
-                saveAllData();
-                renderPartyView();
             }
         } catch (err) {
             console.error(err);
         }
     }
 
-    function onDropOnSlot(e, targetPartyId, slotIndex) {
+    function dropPartyMember(e, targetPartyId, targetIndex) {
         e.preventDefault();
         e.stopPropagation();
         try {
@@ -2684,25 +2689,14 @@
             const targetParty = parties.find(p => p.id === targetPartyId);
             if (!targetParty) return;
 
-            let memberIdToAdd = null;
-            if (data.type === 'guild-member') {
-                memberIdToAdd = data.memberId;
-            } else if (data.type === 'party-member') {
-                memberIdToAdd = data.memberId;
+            if (data.type === 'party-member') {
                 const sourceParty = parties.find(p => p.id === data.sourcePartyId);
-                if (sourceParty) {
-                    sourceParty.memberIds = sourceParty.memberIds.filter(id => id !== memberIdToAdd);
-                }
-            }
+                if (!sourceParty) return;
 
-            if (memberIdToAdd !== null) {
-                targetParty.memberIds = targetParty.memberIds.filter(id => id !== memberIdToAdd);
-                if (slotIndex >= targetParty.memberIds.length) {
-                    targetParty.memberIds.push(memberIdToAdd);
-                } else {
-                    targetParty.memberIds.splice(slotIndex, 0, memberIdToAdd);
+                sourceParty.memberIds = sourceParty.memberIds.filter(id => id !== data.memberId);
+                if (!targetParty.memberIds.includes(data.memberId)) {
+                    targetParty.memberIds.splice(targetIndex, 0, data.memberId);
                 }
-                if (targetParty.memberIds.length > 5) targetParty.memberIds = targetParty.memberIds.slice(0, 5);
                 saveAllData();
                 renderPartyView();
             }
@@ -2711,32 +2705,105 @@
         }
     }
 
-    function openPartyPreviewModal(type) {
-        const filteredParties = parties.filter(p => (p.type || 'main') === type);
-        if (filteredParties.length === 0) return alert(`ไม่พบข้อมูลปาร์ตี้ประเภท ${type.toUpperCase()} สำหรับ Preview!`);
-
-        document.getElementById('imagePreviewModalTitle').innerText = `🖼️ Preview รูปภาพปาร์ตี้กิลด์ (${type.toUpperCase()})`;
-        generatePartyCanvas(filteredParties, type);
+    function dropToGuildList(e) {
+        e.preventDefault();
+        try {
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (data.type === 'party-member') {
+                parties.forEach(p => {
+                    p.memberIds = p.memberIds.filter(id => id !== data.memberId);
+                });
+                saveAllData();
+                renderPartyView();
+            }
+        } catch (err) {
+            console.error(err);
+        }
     }
 
-    function generatePartyCanvas(filteredParties, type) {
+    function createNewParty() {
+        const nextId = parties.length > 0 ? Math.max(...parties.map(p => p.id)) + 1 : 1;
+        parties.push({
+            id: nextId,
+            name: `Party ${nextId}`,
+            type: "main",
+            memberIds: []
+        });
+        saveAllData();
+        renderPartyView();
+    }
+
+    function updatePartyName(partyId, newName) {
+        const p = parties.find(item => item.id === partyId);
+        if (p) {
+            p.name = newName.trim() || 'Party';
+            saveAllData();
+        }
+    }
+
+    function updatePartyType(partyId, newType) {
+        const p = parties.find(item => item.id === partyId);
+        if (p) {
+            p.type = newType;
+            saveAllData();
+            renderPartyView();
+        }
+    }
+
+    function removePartyMember(partyId, memberId) {
+        const p = parties.find(item => item.id === partyId);
+        if (p) {
+            p.memberIds = p.memberIds.filter(id => id !== memberId);
+            saveAllData();
+            renderPartyView();
+        }
+    }
+
+    function deleteParty(partyId) {
+        if (!confirm('⚠️ ยืนยันการลบปาร์ตี้นี้?')) return;
+        parties = parties.filter(p => p.id !== partyId);
+        saveAllData();
+        renderPartyView();
+    }
+
+    function openPartyPreviewModal(typeFilter) {
+        const filteredParties = parties.filter(p => p.type === typeFilter);
+        if (filteredParties.length === 0) return alert(`ไม่มีข้อมูลปาร์ตี้ประเภท ${typeFilter.toUpperCase()} สำหรับ Preview!`);
+
+        document.getElementById('imagePreviewModalTitle').innerText = `🖼️ Preview รูปภาพปาร์ตี้กิลด์ (${typeFilter.toUpperCase()})`;
+        generatePartyCanvasGrid4Col(filteredParties, typeFilter);
+    }
+
+    function generatePartyCanvasGrid4Col(targetParties, typeLabel) {
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
 
         const width = 1200;
         const colCount = 4;
-        const cardWidth = 270;
-        const cardGap = 20;
-        const startX = 30;
+        const cardWidth = 275;
+        const cardGap = 15;
+        const startX = 22;
         const headerHeight = 90;
         const footerHeight = 45;
 
         let totalGridHeight = 0;
         const rowHeights = [];
-        const rowCount = Math.ceil(filteredParties.length / colCount);
+        const rowCount = Math.ceil(targetParties.length / colCount);
 
         for (let r = 0; r < rowCount; r++) {
-            let maxCardHeightInRow = 60 + (5 * 38) + 15;
+            let maxCardHeightInRow = 60;
+            for (let c = 0; c < colCount; c++) {
+                const index = (r * colCount) + c;
+                if (index < targetParties.length) {
+                    const party = targetParties[index];
+                    const memberCount = party.memberIds.length;
+                    const contentHeight = memberCount === 0 ? 40 : memberCount * 38;
+                    const currentCardH = 55 + contentHeight + 15;
+                    if (currentCardH > maxCardHeightInRow) {
+                        maxCardHeightInRow = currentCardH;
+                    }
+                }
+            }
             rowHeights.push(maxCardHeightInRow);
             totalGridHeight += maxCardHeightInRow + cardGap;
         }
@@ -2756,7 +2823,7 @@
 
         ctx.fillStyle = "#2980b9";
         ctx.font = "bold 22px 'Segoe UI', Tahoma, sans-serif";
-        ctx.fillText(`⚔️ รายงานรายชื่อปาร์ตี้กิลด์ (${type.toUpperCase()} Party System)`, 25, 38);
+        ctx.fillText(`⚔️ รายงานสรุปปาร์ตี้กิลด์ (${typeLabel.toUpperCase()})`, 25, 38);
 
         ctx.fillStyle = "#7f8c8d";
         ctx.font = "14px 'Segoe UI', Tahoma, sans-serif";
@@ -2765,9 +2832,9 @@
         const jobImages = {};
         const imgPromises = [];
 
-        filteredParties.forEach(party => {
-            party.memberIds.forEach(memberId => {
-                const member = members.find(m => m.id === memberId);
+        targetParties.forEach(party => {
+            party.memberIds.forEach(mId => {
+                const member = members.find(m => m.id === mId);
                 const job = member ? jobs.find(j => j.id === member.jobId) : null;
                 if (job && job.iconUrl && !jobImages[job.id]) {
                     imgPromises.push(new Promise((resolve) => {
@@ -2789,55 +2856,53 @@
 
                 for (let c = 0; c < colCount; c++) {
                     const index = (r * colCount) + c;
-                    if (index >= filteredParties.length) break;
+                    if (index >= targetParties.length) break;
 
-                    const party = filteredParties[index];
+                    const party = targetParties[index];
                     const cardX = startX + (c * (cardWidth + cardGap));
                     const cardY = currentY;
 
                     ctx.fillStyle = "#ffffff";
-                    ctx.strokeStyle = "#bcd2e8";
+                    ctx.strokeStyle = party.type === 'main' ? "#2980b9" : "#e67e22";
                     ctx.lineWidth = 2;
                     ctx.fillRect(cardX, cardY, cardWidth, currentCardHeight);
                     ctx.strokeRect(cardX, cardY, cardWidth, currentCardHeight);
 
-                    ctx.fillStyle = type === 'main' ? "#2980b9" : "#e67e22";
-                    ctx.fillRect(cardX, cardY, cardWidth, 45);
+                    ctx.fillStyle = party.type === 'main' ? "#2980b9" : "#e67e22";
+                    ctx.fillRect(cardX, cardY, cardWidth, 40);
 
                     ctx.fillStyle = "#ffffff";
-                    ctx.font = "bold 15px 'Segoe UI', Tahoma, sans-serif";
-                    ctx.fillText(`⚔️ ${party.name}`, cardX + 12, cardY + 28);
+                    ctx.font = "bold 14px 'Segoe UI', Tahoma, sans-serif";
+                    ctx.fillText(`🛡️ ${party.name} (${party.memberIds.length} คน)`, cardX + 10, cardY + 25);
 
-                    let slotY = cardY + 55;
-                    for (let i = 0; i < 5; i++) {
-                        const memberId = party.memberIds[i];
-                        ctx.fillStyle = (i % 2 === 0) ? "#f9fcfd" : "#ffffff";
-                        ctx.fillRect(cardX + 8, slotY, cardWidth - 16, 32);
-                        ctx.strokeStyle = "#e2e8f0";
-                        ctx.lineWidth = 1;
-                        ctx.strokeRect(cardX + 8, slotY, cardWidth - 16, 32);
-
-                        if (memberId) {
-                            const member = members.find(m => m.id === memberId);
+                    let slotY = cardY + 50;
+                    if (party.memberIds.length === 0) {
+                        ctx.fillStyle = "#e74c3c";
+                        ctx.font = "italic 12px 'Segoe UI', Tahoma, sans-serif";
+                        ctx.fillText("(ไม่มีสมาชิกในปาร์ตี้)", cardX + 15, slotY + 20);
+                    } else {
+                        party.memberIds.forEach((mId, mIdx) => {
+                            const member = members.find(m => m.id === mId);
                             const job = member ? jobs.find(j => j.id === member.jobId) : null;
-                            const crownSymbol = (i === 0) ? ' 👑' : '';
 
-                            let textX = cardX + 14;
+                            ctx.fillStyle = (mIdx % 2 === 0) ? "#f9fcfd" : "#ffffff";
+                            ctx.fillRect(cardX + 6, slotY, cardWidth - 12, 34);
+                            ctx.strokeStyle = "#e2e8f0";
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(cardX + 6, slotY, cardWidth - 12, 34);
+
+                            let textX = cardX + 12;
                             if (job && jobImages[job.id]) {
-                                ctx.drawImage(jobImages[job.id], cardX + 12, slotY + 4, 24, 24);
-                                textX = cardX + 40;
+                                ctx.drawImage(jobImages[job.id], cardX + 10, slotY + 5, 24, 24);
+                                textX = cardX + 38;
                             }
 
                             ctx.fillStyle = "#2c3e50";
                             ctx.font = "bold 12px 'Segoe UI', Tahoma, sans-serif";
-                            ctx.fillText(`${i + 1}. ${member ? member.name : 'Unknown'}${crownSymbol}`, textX, slotY + 21);
-                        } else {
-                            ctx.fillStyle = "#a0a0a0";
-                            ctx.font = "italic 11px 'Segoe UI', Tahoma, sans-serif";
-                            ctx.fillText(`${i + 1}. (ช่องว่างสมาชิก)`, cardX + 14, slotY + 21);
-                        }
+                            ctx.fillText(`${mIdx + 1}. ${member ? member.name : 'Unknown'}`, textX, slotY + 22);
 
-                        slotY += 36; // <-- แก้ไขตรงนี้จากเดิมเป็น slotY + 36 เฉยๆ
+                            slotY += 38;
+                        });
                     }
                 }
                 currentY += currentCardHeight + cardGap;
@@ -2850,7 +2915,7 @@
 
             ctx.fillStyle = "#7f8c8d";
             ctx.font = "italic 12px 'Segoe UI', Tahoma, sans-serif";
-            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ RO Guild Loot System Pro (Party Grid 4 Columns)", 25, height - 16);
+            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ RO Guild Loot System Pro (Party Card Grid 4 Columns)", 25, height - 16);
 
             currentCanvasDataUrl = canvas.toDataURL("image/png");
             document.getElementById('imagePreviewModal').style.display = 'block';
@@ -2858,22 +2923,22 @@
     }
 
     function exportCustomBackupData() {
-        const backupObj = {};
-        if (document.getElementById('expMember').checked) backupObj.members = members;
-        if (document.getElementById('expItems').checked) backupObj.items = items;
-        if (document.getElementById('expJobs').checked) backupObj.jobs = jobs;
-        if (document.getElementById('expQueues').checked) backupObj.queues = queues;
-        if (document.getElementById('expLogs').checked) backupObj.dailyLogs = dailyLogs;
-        if (document.getElementById('expParties').checked) backupObj.parties = parties;
+        const data = {};
+        if (document.getElementById('expMember').checked) data.members = members;
+        if (document.getElementById('expItems').checked) data.items = items;
+        if (document.getElementById('expJobs').checked) data.jobs = jobs;
+        if (document.getElementById('expQueues').checked) data.queues = queues;
+        if (document.getElementById('expLogs').checked) data.dailyLogs = dailyLogs;
+        if (document.getElementById('expParties').checked) data.parties = parties;
 
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
         downloadAnchor.setAttribute("download", `RO_Guild_Backup_${getTodayISO()}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
-        alert('✅ ส่งออกข้อมูลสำรอง (Backup) สำเร็จ!');
+        alert('✅ ส่งออกข้อมูล (Backup) เป็นไฟล์ JSON เรียบร้อยแล้ว!');
     }
 
     function triggerImportBackup() {
@@ -2895,35 +2960,35 @@
                 if (imported.dailyLogs) { dailyLogs = imported.dailyLogs; localStorage.setItem('ro_daily_logs', JSON.stringify(dailyLogs)); }
                 if (imported.parties) { parties = imported.parties; localStorage.setItem('ro_parties', JSON.stringify(parties)); }
 
-                initApp();
                 alert('✅ นำเข้าข้อมูล (Restore) สำเร็จเรียบร้อยแล้ว!');
+                initApp();
             } catch (err) {
                 alert('❌ ไฟล์ JSON ไม่ถูกต้องหรือเสียหาย!');
                 console.error(err);
             }
         };
         reader.readAsText(file);
-        event.target.value = '';
     }
 
     function resetQueueData() {
-        if (!confirm('⚠️ ยืนยันการล้างคิวทั้งหมดเพื่อเริ่มรอบใหม่?')) return;
+        if (!confirm('⚠️ ยืนยันการล้างลำดับคิวทั้งหมดเพื่อเริ่มต้นรอบใหม่?')) return;
         queues = [];
         initQueues();
+        saveAllData();
         updateQueueView();
-        alert('✅ ล้างลำดับคิวเรียบร้อยแล้ว!');
+        alert('✅ รีเซ็ตลำดับคิวทั้งหมดเรียบร้อยแล้ว!');
     }
 
     function clearLogsAll() {
-        if (!confirm('⚠️ ยืนยันการล้างประวัติการแจกทั้งหมด?')) return;
+        if (!confirm('⚠️ ยืนยันการล้างประวัติการแจก (Daily Logs) ทั้งหมด?')) return;
         dailyLogs = [];
         saveAllData();
         updateDashboard();
-        alert('✅ ล้างประวัติการแจกเรียบร้อยแล้ว!');
+        alert('✅ ล้างประวัติการแจกทั้งหมดเรียบร้อยแล้ว!');
     }
 
     function factoryReset() {
-        if (!confirm('🚨 คำเตือนขั้นสูงสุด: การรีเซ็ตระบบจะลบข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้น! ยืนยันหรือไม่?')) return;
+        if (!confirm('⚠️ คำเตือนสูงสุด: การรีเซ็ตระบบทั้งหมดจะลบข้อมูลทุกอย่างกลับเป็นค่าเริ่มต้น คุณแน่ใจหรือไม่?')) return;
         localStorage.clear();
         location.reload();
     }
