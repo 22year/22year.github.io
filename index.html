@@ -1335,23 +1335,48 @@
         container.appendChild(gridWrapper);
     }
 
-    async function sendSingleDiscordWebhook(itemId) {
-        const item = items.find(i => i.id === itemId);
-        const recipients = calculatedMultiResults[itemId];
-        if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
+async function sendSingleDiscordWebhook(itemId) {
+    const item = items.find(i => i.id === itemId);
+    const recipients = calculatedMultiResults[itemId];
+    if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
 
-        let text = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name}**\n`;
-        text += `----------------------------------------\n`;
-        recipients.forEach((rec, idx) => {
-            const member = members.find(m => m.id === rec.memberId);
-            const job = jobs.find(j => j.id === member.jobId) || { name: '' };
-            let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-            text += `${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}\n`;
-        });
-        text += `----------------------------------------`;
+    let header = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name}**\n----------------------------------------\n`;
+    let footer = `----------------------------------------`;
 
-        await sendDiscordWebhookNotification(text);
+    let lines = [];
+    recipients.forEach((rec, idx) => {
+        const member = members.find(m => m.id === rec.memberId);
+        const job = jobs.find(j => j.id === member.jobId) || { name: '' };
+        let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
+        lines.push(`${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}`);
+    });
+
+    // จัดกลุ่มข้อความไม่ให้เกิน 1,900 ตัวอักษรต่อโพสต์ (เผื่อพื้นที่สำหรับ Header/Footer)
+    const MAX_LENGTH = 1900;
+    let currentChunk = header;
+    let chunks = [];
+
+    for (let line of lines) {
+        // ถ้ารวมบรรทัดนี้แล้วเกินโควตา ให้ดัน chunk เก่าเก็บไว้ แล้วเริ่ม chunk ใหม่
+        if ((currentChunk + line + "\n").length > MAX_LENGTH) {
+            currentChunk += `---------------------------------------- (มีต่อ)`;
+            chunks.push(currentChunk);
+            currentChunk = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name} (ต่อ)**\n----------------------------------------\n` + line + "\n";
+        } else {
+            currentChunk += line + "\n";
+        }
     }
+
+    // เติม Footer ปิดท้ายในข้อความส่วนสุดท้าย
+    currentChunk += footer;
+    chunks.push(currentChunk);
+
+    // วนลูปส่ง Webhook ทีละชุดตามลำดับ
+    for (const chunk of chunks) {
+        await sendDiscordWebhookNotification(chunk);
+    }
+}
+
 
     function openImagePreviewModalAll() {
         const activeItemIds = Object.keys(calculatedMultiResults);
