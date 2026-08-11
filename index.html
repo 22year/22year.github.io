@@ -3,33 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RO Guild Loot System - White & Blue Edition</title>
+    <title>ROOC Guild Loot System - White & Blue Edition</title>
 <style>
     :root {
         --bg-color: #0b0f19;
         --panel-bg: #151b2b;
         --panel-border: #4a5b7c;
-        --gold-accent: #f39c12;
-        --gold-light: #f1c40f;
-        --primary-blue: #2980b9;
-        --light-blue: #1c263d;
+        /* ปรับโทนสีหลักเป็นฟ้าอ่อนไล่ระดับ */
+        --gold-accent: #00d2ff;
+        --gold-light: #70f7ff;
+        --primary-blue: #00a8ff;
+        --light-blue: #1c3d5a;
         --text-color: #ecf0f1;
         --text-muted: #95a5a6;
         --btn-green: #27ae60;
         --btn-red: #c0392b;
         --btn-orange: #d35400;
-        --btn-blue: #2980b9;
+        --btn-blue: #00a8ff;
         --btn-purple: #8e44ad;
         --btn-grey: #7f8c8d;
     }
 
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: var(--bg-color);
         color: var(--text-color);
         margin: 0;
         padding: 20px;
-        background-image: radial-gradient(circle at 50% 0%, #1a253a 0%, #0b0f19 100%);
+        background: linear-gradient(rgba(11, 15, 25, 0.75), rgba(11, 15, 25, 0.75)), url('https://www.joytify.com/blog/en-ph/wp-content/uploads/2026/03/Ragnarok-Origin-Classic-2026.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         background-attachment: fixed;
     }
 
@@ -39,15 +42,37 @@
         text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
 
+    /* คีย์เฟรมสำหรับแอนิเมชันสีเคลื่อนไหว */
+    @keyframes rainbowAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* ขอบแบบเส้นคู่ สีสายรุ้ง สำหรับหน้าต่าง Login และ Panel สำคัญ (เคลื่อนไหวได้) */
+    #loginScreen, .panel {
+        background: var(--panel-bg);
+        border: 6px double transparent;
+        background-image: linear-gradient(var(--panel-bg), var(--panel-bg)), 
+                          linear-gradient(270deg, red, orange, yellow, green, cyan, blue, violet, red);
+        background-size: 400% 400%;
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,210,255,0.2);
+        animation: rainbowAnimation 8s ease infinite;
+    }
+
     #loginScreen {
         max-width: 400px;
         margin: 80px auto;
-        background: var(--panel-bg);
-        border: 2px solid var(--gold-accent);
-        border-radius: 8px;
         padding: 30px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    .panel {
+        padding: 20px;
+        margin-bottom: 20px;
     }
 
     .user-bar {
@@ -81,17 +106,22 @@
         cursor: pointer;
         border-radius: 4px;
         font-weight: bold;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
+    /* ⬇️ เอฟเฟกต์สีเคลื่อนไหวเมื่อเอาเมาส์ชี้ Tab Button ⬇️ */
     .tab-btn:hover {
+        background: linear-gradient(270deg, #00d2ff, #0077b6, #70f7ff, #00d2ff);
+        background-size: 300% 300%;
+        animation: rainbowAnimation 3s ease infinite;
         border-color: var(--gold-accent);
-        color: var(--gold-light);
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(0, 210, 255, 0.6);
     }
 
     .tab-btn.active {
-        background: linear-gradient(to bottom, #2980b9, #1b4f72);
+        background: linear-gradient(to bottom, #00d2ff, #0077b6);
         color: #ffffff;
         border-color: var(--gold-accent);
         box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
@@ -99,15 +129,6 @@
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
-    .panel {
-        background: var(--panel-bg);
-        border: 1px solid var(--panel-border);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    }
 
     .form-group {
         margin-bottom: 15px;
@@ -137,10 +158,20 @@
         font-weight: bold;
         cursor: pointer;
         color: #fff;
-        transition: opacity 0.2s, transform 0.1s;
+        transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
-    button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ⬇️ เอฟเฟกต์สีเคลื่อนไหวเมื่อเอาเมาส์ชี้ปุ่มทั่วไป (ทุกปุ่ม) ⬇️ */
+    button:hover {
+        background: linear-gradient(270deg, #ff007f, #7f00ff, #00d2ff, #ff007f);
+        background-size: 300% 300%;
+        animation: rainbowAnimation 3s ease infinite;
+        opacity: 1;
+        transform: translateY(-2px);
+        box-shadow: 0 0 12px rgba(0, 210, 255, 0.8);
+        border-color: var(--gold-light);
+    }
     button:active { transform: translateY(0); }
 
     .btn-green { background: var(--btn-green); }
@@ -246,7 +277,7 @@
         font-weight: bold;
     }
     .role-admin { background: #c0392b; color: white; }
-    .role-staff { background: #2980b9; color: white; }
+    .role-staff { background: #00a8ff; color: white; }
 
     .gen-item-card {
         background: var(--panel-bg);
@@ -328,8 +359,8 @@
     }
 
     .admin-box {
-        border: 2px dashed #2980b9;
-        background: rgba(41, 128, 185, 0.05);
+        border: 2px dashed #00a8ff;
+        background: rgba(0, 168, 255, 0.05);
         padding: 15px;
         border-radius: 6px;
         margin-bottom: 15px;
@@ -492,7 +523,7 @@
         height: 100%;
         box-sizing: border-box;
     }
-    .party-card.type-main { border-left: 6px solid #2980b9; }
+    .party-card.type-main { border-left: 6px solid #00a8ff; }
     .party-card.type-sub { border-left: 6px solid #d35400; }
     .party-header {
         display: flex;
@@ -531,7 +562,7 @@
 
     <div id="loginScreen">
         <h1>🏰 Guild Loot System</h1>
-        <p style="color: var(--text-muted);">เข้าสู่ระบบเพื่อจัดการคิวแจกของ (Ragnarok Theme)</p>
+        <p style="color: var(--text-muted);">เข้าสู่ระบบเพื่อจัดการคิวแจกของ</p>
         <div class="form-group" style="text-align: left;">
             <label>ผู้ใช้งาน (Username):</label>
             <input type="text" id="loginUser" placeholder="admin หรือ staff">
@@ -560,7 +591,7 @@
             </div>
         </div>
 
-        <h1>🏰 ระบบจัดคิวแจกไอเทมกิลด์ (RO Classic Theme)</h1>
+        <h1>🏰 ระบบจัดคิวแจกไอเทมกิลด์ (ROOC Theme)</h1>
 
         <div class="nav-tabs">
             <button class="tab-btn active" id="tabBtn-dashboard" onclick="switchTab('dashboard')">📊 สรุปประวัติการแจกไอเทม</button>
@@ -578,7 +609,10 @@
             <div class="panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <h2>📊 สรุปประวัติการแจกไอเทม</h2>
-                    <button class="btn-purple" onclick="exportDailyReport()">📋 Copy รายงานประจำวัน (Discord)</button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-purple" onclick="exportDailyReport()">📋 Copy รายงานประจำวัน (Discord)</button>
+                        <button class="btn-blue" onclick="sendRoomWebhook('dashboard')">🤖 ส่งแจ้งเตือนห้องสรุปประวัติ</button>
+                    </div>
                 </div>
 
                 <div class="filter-bar">
@@ -626,9 +660,12 @@
                         <h2>📋 ลำดับคิวปัจจุบัน</h2>
                         <p style="margin: 0; color: var(--text-muted); font-size: 14px;">ลำดับการจัดเรียง: <b>[ค้างรับ] ➔ [Skip จากรอบที่แล้ว] ➔ [คิวปกติ/รอบถัดไป] ➔ [วนต่อท้ายสุด]</b></p>
                     </div>
-                    <button class="btn-purple" style="font-size: 16px; padding: 12px 24px;" onclick="goToGeneratePage()">
-                        🚀 เข้าสู่หน้า Generate คิวแจกของ ➔
-                    </button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-blue" onclick="sendRoomWebhook('queue')">🤖 ส่งแจ้งเตือนห้องลำดับคิว</button>
+                        <button class="btn-purple" style="font-size: 16px; padding: 12px 24px;" onclick="goToGeneratePage()">
+                            🚀 เข้าสู่หน้า Generate คิวแจกของ ➔
+                        </button>
+                    </div>
                 </div>
                 
                 <hr style="border-color: var(--panel-border); margin: 15px 0;">
@@ -712,7 +749,10 @@
             <div class="panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <h2>👥 ตารางสรุปรายการคิวแยกตามไอเทม</h2>
-                    <button id="btnPreviewReport" class="btn-grey" style="font-size: 14px; display: none;" onclick="openImagePreviewModalAll()">🖼️ Preview รูปภาพรวมทุกไอเทม</button>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-blue" onclick="sendRoomWebhook('generate')">🤖 ส่งแจ้งเตือนตารางสรุปคิว</button>
+                        <button id="btnPreviewReport" class="btn-grey" style="font-size: 14px; display: none;" onclick="openImagePreviewModalAll()">🖼️ Preview รูปภาพรวมทุกไอเทม</button>
+                    </div>
                 </div>
 
                 <div id="multiQueueTablesContainer" style="margin-top: 15px;">
@@ -732,6 +772,7 @@
                         <p style="margin: 0; color: var(--text-muted); font-size: 14px;">สร้างและจัดการกลุ่มปาร์ตี้สำหรับสมาชิกกิลด์ (แสดงผลแบบ Card Grid 4 คอลัมน์)</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-blue" onclick="sendRoomWebhook('party')">🤖 ส่งแจ้งเตือนห้องปาร์ตี้</button>
                         <button class="btn-blue" onclick="openPartyPreviewModal('main')">🖼️ Preview รูปภาพปาร์ตี้ Main</button>
                         <button class="btn-orange" onclick="openPartyPreviewModal('sub')">🖼️ Preview รูปภาพ Party Sub</button>
                         <button class="btn-green" onclick="createNewParty()">➕ สร้างปาร์ตี้ใหม่</button>
@@ -850,16 +891,41 @@
         <div id="adminPanel" class="tab-content">
             <div class="panel">
                 <h2>🛠️ Admin Control Panel (ศูนย์ควบคุมระบบ)</h2>
-                <p style="color: var(--text-muted);">หน้านี้มีไว้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น สำหรับจัดการสำรองข้อมูล นำเข้า และตั้งค่าระบบ</p>
+                <p style="color: var(--text-muted);">หน้านี้มีไว้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น สำหรับตั้งค่า Webhook แยกห้อง สำรองข้อมูล และจัดการระบบ</p>
                 
-                <div class="admin-box" style="border-color: var(--btn-purple); background: #f4ecf7;">
-                    <h3 style="color: var(--btn-purple);">🤖 ตั้งค่า Discord Webhook</h3>
-                    <p style="margin: 5px 0; font-size: 14px;">ใส่ Discord Webhook URL เพื่อใช้สำหรับส่งแจ้งเตือนการแจกไอเทมอัตโนมัติ:</p>
-                    <div class="form-group" style="margin-top: 10px;">
-                        <label>Discord Webhook URL:</label>
+                <div class="admin-box" style="border-color: var(--btn-purple); background: #102354;">
+                    <h3 style="color: var(--btn-purple);">🤖 ตั้งค่า Discord Webhook แยกตามห้อง (Rooms)</h3>
+                    <p style="margin: 5px 0; font-size: 14px;">ใส่ Discord Webhook URL ให้ตรงกับห้อง Discord ที่ต้องการใช้งาน:</p>
+                    
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label>📊 1. Webhook ห้องสรุปประวัติการแจกไอเทม:</label>
                         <div style="display: flex; gap: 8px;">
-                            <input type="text" id="adminDiscordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
-                            <button class="btn-purple" onclick="saveAdminWebhookUrl()">💾 บันทึก Webhook</button>
+                            <input type="text" id="webhookUrl_dashboard" placeholder="https://discord.com/api/webhooks/...">
+                            <button class="btn-purple" onclick="saveRoomWebhook('dashboard')">💾 บันทึก</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>📋 2. Webhook ห้องลำดับคิวปัจจุบัน:</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="webhookUrl_queue" placeholder="https://discord.com/api/webhooks/...">
+                            <button class="btn-purple" onclick="saveRoomWebhook('queue')">💾 บันทึก</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>⚡ 3. Webhook ห้องตารางสรุปรายการคิว (Generate):</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="webhookUrl_generate" placeholder="https://discord.com/api/webhooks/...">
+                            <button class="btn-purple" onclick="saveRoomWebhook('generate')">💾 บันทึก</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 10px;">
+                        <label>⚔️ 4. Webhook ห้องระบบจัดปาร์ตี้กิลด์:</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="webhookUrl_party" placeholder="https://discord.com/api/webhooks/...">
+                            <button class="btn-purple" onclick="saveRoomWebhook('party')">💾 บันทึก</button>
                         </div>
                     </div>
                 </div>
@@ -1009,10 +1075,13 @@
             el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
         });
 
-        const webhookInput = document.getElementById('adminDiscordWebhookUrl');
-        if (webhookInput) {
-            webhookInput.value = localStorage.getItem('ro_discord_webhook') || '';
-        }
+        // โหลดค่า Webhook แยกห้องมาแสดงใน Admin Panel
+        ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
+            const inputEl = document.getElementById(`webhookUrl_${room}`);
+            if (inputEl) {
+                inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
+            }
+        });
 
         initApp();
     }
@@ -1025,16 +1094,16 @@
         document.getElementById('loginPass').value = '';
     }
 
-    function saveAdminWebhookUrl() {
-        const url = document.getElementById('adminDiscordWebhookUrl').value.trim();
-        localStorage.setItem('ro_discord_webhook', url);
-        alert('✅ บันทึก Discord Webhook URL เรียบร้อยแล้ว!');
+    function saveRoomWebhook(room) {
+        const url = document.getElementById(`webhookUrl_${room}`).value.trim();
+        localStorage.setItem(`ro_webhook_${room}`, url);
+        alert(`✅ บันทึก Discord Webhook ของห้อง [${room.toUpperCase()}] เรียบร้อยแล้ว!`);
     }
 
-    async function sendDiscordWebhookNotification(content) {
-        const webhookUrl = localStorage.getItem('ro_discord_webhook');
+    async function sendDiscordWebhookNotification(room, content) {
+        const webhookUrl = localStorage.getItem(`ro_webhook_${room}`);
         if (!webhookUrl) {
-            alert('⚠️ ยังไม่ได้ตั้งค่า Discord Webhook URL ในหน้า Admin Control Panel');
+            alert(`⚠️ ยังไม่ได้ตั้งค่า Discord Webhook URL ของห้องนี้ในหน้า Admin Control Panel`);
             return false;
         }
 
@@ -1046,7 +1115,7 @@
             });
 
             if (response.ok || response.status === 204) {
-                alert('✅ ส่งแจ้งเตือนผ่าน Discord Webhook สำเร็จ!');
+                alert(`✅ ส่งแจ้งเตือนผ่าน Discord Webhook ห้อง [${room.toUpperCase()}] สำเร็จ!`);
                 return true;
             } else {
                 alert('❌ เกิดข้อผิดพลาดในการส่ง Discord Webhook (สถานะ: ' + response.status + ')');
@@ -1056,6 +1125,132 @@
             console.error(error);
             alert('❌ ไม่สามารถเชื่อมต่อกับ Discord Webhook ได้ (ตรวจสอบ URL หรือ CORS Policy)');
             return false;
+        }
+    }
+
+	async function sendRoomWebhook(room) {
+        // ฟังก์ชันช่วยตัดข้อความไม่ให้เกิน 2000 ตัวอักษรต่อ 1 Request ของ Discord
+        async function sendLongMessage(channelType, fullText) {
+            const MAX_LENGTH = 1900; // เผื่อพื้นที่ไว้เล็กน้อย
+            if (fullText.length <= MAX_LENGTH) {
+                await sendDiscordWebhookNotification(channelType, fullText);
+                return;
+            }
+
+            // ตัดแบ่งตามบรรทัดเพื่อไม่ให้ข้อความขาดกลางคำหรือพังบรรทัด
+            let lines = fullText.split('\n');
+            let currentChunk = '';
+
+            for (let line of lines) {
+                if ((currentChunk + line + '\n').length > MAX_LENGTH) {
+                    await sendDiscordWebhookNotification(channelType, currentChunk);
+                    currentChunk = line + '\n';
+                    // หน่วงเวลาเล็กน้อย 500ms ป้องกัน Discord บล็อกเรื่อง Rate Limit (HTTP 429)
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } else {
+                    currentChunk += line + '\n';
+                }
+            }
+            if (currentChunk.trim().length > 0) {
+                await sendDiscordWebhookNotification(channelType, currentChunk);
+            }
+        }
+
+        if (room === 'dashboard') {
+            const filterDate = document.getElementById('dashFilterDate').value || getTodayISO();
+            let logsToday = dailyLogs.filter(l => l.dateIso === filterDate);
+
+            let text = `📊 **[ROOC GUILD] สรุปรายงานการแจกไอเทมประจำวันที่ ${formatDateDisplay(filterDate)}**\n`;
+            text += `========================================\n`;
+
+            if (logsToday.length === 0) {
+                text += `(ไม่มีบันทึกการแจกในวันนี้)\n`;
+            } else {
+                items.forEach(item => {
+                    let itemLogs = logsToday.filter(l => l.itemId === item.id);
+                    if (itemLogs.length > 0) {
+                        text += `📦 **${item.name}**:\n`;
+                        itemLogs.forEach((l, idx) => {
+                            text += `  ${idx + 1}. ${l.memberName} (${l.jobName}) - รับ ${l.giveCount} ชิ้น | 📍 ${l.slotStr}\n`;
+                        });
+                    }
+                });
+            }
+            text += `========================================`;
+            await sendLongMessage('dashboard', text);
+			
+
+			} else if (room === 'queue') {
+            const selectEl = document.getElementById('queueSelectItemId');
+            if (!selectEl || selectEl.options.length === 0) return alert('กรุณาเลือกไอเทมก่อนส่ง Webhook คิว!');
+            const itemId = parseInt(selectEl.value);
+            const item = items.find(i => i.id === itemId);
+            const q = queues.find(x => x.itemId === itemId);
+            if (!q || !q.list || q.list.length === 0) return alert('ไม่มีข้อมูลคิวสำหรับไอเทมนี้!');
+
+            let displayList = getDisplayQueueList(q.list);
+            let text = `📋 **[ROOC GUILD] ลำดับคิวปัจจุบัน: ${item.name}**\n`;
+            text += `----------------------------------------\n`;
+            
+            displayList.forEach((entry, idx) => {
+                const member = members.find(m => m.id === entry.memberId);
+                const job = jobs.find(j => j.id === member.jobId) || { name: '' };
+                
+                text += `${idx + 1}. **${member.name}** (${job.name}) - รับแล้ว ${entry.received} ชิ้น\n`;
+
+                // แสดงจำนวนค้างรับ (สีแดง)
+                if (entry.pending > 0) {
+                    text += "```diff\n";
+                    text += `- ค้างรับ: ${entry.pending} ชิ้น\n`;
+                    text += "```";
+                }
+            });
+            text += `----------------------------------------`;
+            await sendLongMessage('queue', text);
+                      
+        
+
+        } else if (room === 'generate') {
+            const activeItemIds = Object.keys(calculatedMultiResults);
+            if (activeItemIds.length === 0) return alert('ยังไม่มีข้อมูล Generate คิวในหน้าตารางสรุป!');
+
+            let text = `⚡ **[ROOC GUILD] ตารางสรุปรายการคิวแยกตามไอเทมรอบล่าสุด**\n`;
+            text += `========================================\n`;
+            activeItemIds.forEach(itemIdStr => {
+                const itemId = parseInt(itemIdStr);
+                const item = items.find(i => i.id === itemId);
+                const recipients = calculatedMultiResults[itemId];
+                text += `📦 **${item.name}** (${recipients.length} คน):\n`;
+                recipients.forEach((rec, idx) => {
+                    const member = members.find(m => m.id === rec.memberId);
+                    const job = jobs.find(j => j.id === member.jobId) || { name: '' };
+                    let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
+                    text += `  ${idx + 1}. **${member.name}** (${job.name}) - รับ ${rec.giveCount} ชิ้น | 📍 ${slotStr}\n`;
+                });
+                text += `----------------------------------------\n`;
+            });
+            await sendLongMessage('generate', text);
+
+        } else if (room === 'party') {
+            let text = `⚔️ **[ROOC GUILD] รายชื่อปาร์ตี้กิลด์ทั้งหมด**\n`;
+            text += `========================================\n`;
+            parties.forEach(p => {
+                let badgeType = p.type === 'main' ? '🛡️ [MAIN PARTY]' : '⚔️ [SUB PARTY]';
+                text += `${badgeType} **${p.name}** (${p.memberIds.length} คน):\n`;
+                if (p.memberIds.length === 0) {
+                    text += `  (ยังไม่มีสมาชิกในปาร์ตี้)\n`;
+                } else {
+                    p.memberIds.forEach((mId, idx) => {
+                        const m = members.find(x => x.id === mId);
+                        const j = m ? jobs.find(x => x.id === m.jobId) : { name: '' };
+                        if (m) {
+                            text += `  ${idx + 1}. ${m.name} (${j.name}) - ${m.discordId || '-'}\n`;
+                        }
+                    });
+                }
+                text += `----------------------------------------\n`;
+            });
+            await sendLongMessage('party', text);
         }
     }
 
@@ -1362,48 +1557,43 @@
         container.appendChild(gridWrapper);
     }
 
-async function sendSingleDiscordWebhook(itemId) {
-    const item = items.find(i => i.id === itemId);
-    const recipients = calculatedMultiResults[itemId];
-    if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
+    async function sendSingleDiscordWebhook(itemId) {
+        const item = items.find(i => i.id === itemId);
+        const recipients = calculatedMultiResults[itemId];
+        if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
 
-    let header = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name}**\n----------------------------------------\n`;
-    let footer = `----------------------------------------`;
+        let header = `📦 **[ROOC GUILD] แจ้งเตือนคิวแจก ${item.name}**\n----------------------------------------\n`;
+        let footer = `----------------------------------------`;
 
-    let lines = [];
-    recipients.forEach((rec, idx) => {
-        const member = members.find(m => m.id === rec.memberId);
-        const job = jobs.find(j => j.id === member.jobId) || { name: '' };
-        let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-        lines.push(`${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}`);
-    });
+        let lines = [];
+        recipients.forEach((rec, idx) => {
+            const member = members.find(m => m.id === rec.memberId);
+            const job = jobs.find(j => j.id === member.jobId) || { name: '' };
+            let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
+            lines.push(`${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}`);
+        });
 
-    // จัดกลุ่มข้อความไม่ให้เกิน 1,900 ตัวอักษรต่อโพสต์ (เผื่อพื้นที่สำหรับ Header/Footer)
-    const MAX_LENGTH = 1900;
-    let currentChunk = header;
-    let chunks = [];
+        const MAX_LENGTH = 1900;
+        let currentChunk = header;
+        let chunks = [];
 
-    for (let line of lines) {
-        // ถ้ารวมบรรทัดนี้แล้วเกินโควตา ให้ดัน chunk เก่าเก็บไว้ แล้วเริ่ม chunk ใหม่
-        if ((currentChunk + line + "\n").length > MAX_LENGTH) {
-            currentChunk += `---------------------------------------- (มีต่อ)`;
-            chunks.push(currentChunk);
-            currentChunk = `📦 **[RO GUILD LOOT] แจ้งเตือนคิวแจก ${item.name} (ต่อ)**\n----------------------------------------\n` + line + "\n";
-        } else {
-            currentChunk += line + "\n";
+        for (let line of lines) {
+            if ((currentChunk + line + "\n").length > MAX_LENGTH) {
+                currentChunk += `---------------------------------------- (มีต่อ)`;
+                chunks.push(currentChunk);
+                currentChunk = `📦 **[ROOC GUILD] แจ้งเตือนคิวแจก ${item.name} (ต่อ)**\n----------------------------------------\n` + line + "\n";
+            } else {
+                currentChunk += line + "\n";
+            }
+        }
+
+        currentChunk += footer;
+        chunks.push(currentChunk);
+
+        for (const chunk of chunks) {
+            await sendDiscordWebhookNotification('generate', chunk);
         }
     }
-
-    // เติม Footer ปิดท้ายในข้อความส่วนสุดท้าย
-    currentChunk += footer;
-    chunks.push(currentChunk);
-
-    // วนลูปส่ง Webhook ทีละชุดตามลำดับ
-    for (const chunk of chunks) {
-        await sendDiscordWebhookNotification(chunk);
-    }
-}
-
 
     function openImagePreviewModalAll() {
         const activeItemIds = Object.keys(calculatedMultiResults);
@@ -1582,7 +1772,7 @@ async function sendSingleDiscordWebhook(itemId) {
 
             ctx.fillStyle = "#7f8c8d";
             ctx.font = "italic 12px 'Segoe UI', Tahoma, sans-serif";
-            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ RO Guild Loot System Pro (Card Grid 3 Columns)", 25, height - 16);
+            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ ROOC Guild Loot System Pro (Card Grid 3 Columns)", 25, height - 16);
 
             currentCanvasDataUrl = canvas.toDataURL("image/png");
             document.getElementById('imagePreviewModal').style.display = 'block';
@@ -2201,7 +2391,7 @@ async function sendSingleDiscordWebhook(itemId) {
         const recipients = calculatedMultiResults[itemId];
         if (!recipients || recipients.length === 0) return;
 
-        let text = `📦 **[RO GUILD LOOT] รายงานแจก ${item.name}**\n`;
+        let text = `📦 **[ROOC GUILD] รายงานแจก ${item.name}**\n`;
         text += `----------------------------------------\n`;
         recipients.forEach((rec, idx) => {
             const member = members.find(m => m.id === rec.memberId);
@@ -2278,7 +2468,7 @@ async function sendSingleDiscordWebhook(itemId) {
         const filterDate = document.getElementById('dashFilterDate').value || getTodayISO();
         let logsToday = dailyLogs.filter(l => l.dateIso === filterDate);
 
-        let text = `📊 **[RO GUILD] สรุปรายงานการแจกไอเทมประจำวันที่ ${formatDateDisplay(filterDate)}**\n`;
+        let text = `📊 **[ROOC GUILD] สรุปรายงานการแจกไอเทมประจำวันที่ ${formatDateDisplay(filterDate)}**\n`;
         text += `========================================\n`;
 
         if (logsToday.length === 0) {
@@ -2586,190 +2776,144 @@ async function sendSingleDiscordWebhook(itemId) {
             m.name = name;
             m.jobId = jobId;
             m.discordId = discordId;
-            saveAllData();
-            renderMembers();
-            updateQueueView();
-            renderPartyView();
-            closeEditMemberModal();
-            alert('✅ บันทึกการแก้ไขข้อมูลสมาชิกเรียบร้อยแล้ว!');
         }
+
+        saveAllData();
+        renderMembers();
+        updateQueueView();
+        renderPartyView();
+        closeEditMemberModal();
+        alert('✅ บันทึกข้อมูลสมาชิกเรียบร้อยแล้ว!');
     }
 
+    let isGuildMemberBarHidden = false;
     function toggleGuildMemberBar() {
-        const container = document.getElementById('stickyMemberContainer');
+        isGuildMemberBarHidden = !isGuildMemberBarHidden;
+        const container = document.getElementById('guildMemberListDraggable');
         const btn = document.getElementById('toggleMemberBarBtn');
-        if (container.style.display === 'none') {
-            container.style.display = 'block';
-            btn.innerText = '🔼 ซ่อนรายชื่อสมาชิก (ลากเข้าปาร์ตี้)';
-        } else {
+        if (isGuildMemberBarHidden) {
             container.style.display = 'none';
             btn.innerText = '🔽 แสดงรายชื่อสมาชิก (ลากเข้าปาร์ตี้)';
+        } else {
+            container.style.display = 'flex';
+            btn.innerText = '🔼 ซ่อนรายชื่อสมาชิก (ลากเข้าปาร์ตี้)';
         }
     }
 
     function renderPartyView() {
-        const container = document.getElementById('partyListContainer');
-        const guildMemberListEl = document.getElementById('guildMemberListDraggable');
-        if (!container || !guildMemberListEl) return;
-        
-        container.innerHTML = '';
-        guildMemberListEl.innerHTML = '';
+        const draggableList = document.getElementById('guildMemberListDraggable');
+        if (draggableList) {
+            draggableList.innerHTML = '';
+            let assignedMemberIds = [];
+            parties.forEach(p => { assignedMemberIds = assignedMemberIds.concat(p.memberIds); });
 
-        const assignedMemberIds = [];
-        parties.forEach(p => p.memberIds.forEach(id => assignedMemberIds.push(id)));
-        const unassignedMembers = members.filter(m => !assignedMemberIds.includes(m.id));
+            let unassignedMembers = members.filter(m => !assignedMemberIds.includes(m.id));
 
-        if (unassignedMembers.length === 0) {
-            guildMemberListEl.innerHTML = `<span style="font-size: 13px; color: var(--text-muted);"><i>(สมาชิกทุกคนถูกจัดเข้าปาร์ตี้ครบหมดแล้ว)</i></span>`;
-        } else {
-            unassignedMembers.forEach(m => {
-                const job = jobs.find(j => j.id === m.jobId) || { name: '', iconUrl: '' };
-                const badgeEl = document.createElement('div');
-                badgeEl.className = 'party-member-slot';
-                badgeEl.style.display = 'inline-flex';
-                badgeEl.style.margin = '2px';
-                badgeEl.style.padding = '4px 8px';
-                badgeEl.style.cursor = 'grab';
-                badgeEl.draggable = true;
-                badgeEl.innerHTML = `
-                    ${renderJobIcon(job.iconUrl)}
-                    <span style="font-size: 12px; font-weight: bold;">${m.name}</span>
-                `;
-                badgeEl.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'guild-member', memberId: m.id }));
-                });
-                guildMemberListEl.appendChild(badgeEl);
-            });
-        }
-
-        if (parties.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px; grid-column: 1 / -1;">ยังไม่มีปาร์ตี้ในระบบ — กรุณากด "➕ สร้างปาร์ตี้ใหม่"</div>`;
-            return;
-        }
-
-        parties.forEach((party) => {
-            const isMain = party.type === 'main';
-            const cardEl = document.createElement('div');
-            cardEl.className = `party-card type-${party.type || 'main'}`;
-
-            let memberSlotsHtml = '';
-            if (!party.memberIds || party.memberIds.length === 0) {
-                memberSlotsHtml = `<div style="text-align: center; color: var(--text-muted); padding: 25px; font-size: 13px;"><i>ลากสมาชิกมาวางที่นี่ หรือกดจัดการ</i></div>`;
+            if (unassignedMembers.length === 0) {
+                draggableList.innerHTML = `<span style="color:var(--text-muted); font-size:12px; font-style:italic;">(สมาชิกทุกคนอยู่ในปาร์ตี้หมดแล้ว)</span>`;
             } else {
-                party.memberIds.forEach((mId, mIdx) => {
-                    const member = members.find(m => m.id === mId);
-                    if (!member) return;
-                    const job = jobs.find(j => j.id === member.jobId) || { name: '', iconUrl: '' };
-                    memberSlotsHtml += `
-                        <div class="party-member-slot" draggable="true" ondragstart="dragPartyMember(event, ${party.id}, ${mId})" ondragover="allowDrop(event)" ondrop="dropPartyMember(event, ${party.id}, ${mIdx})">
-                            <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
-                                <span style="font-weight: bold; color: var(--primary-blue);">#${mIdx + 1}</span>
-                                ${renderJobIcon(job.iconUrl)}
-                                <span style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${member.name}</span>
-                            </div>
-                            <button class="btn-red" style="padding: 1px 5px; font-size: 10px;" onclick="removePartyMember(${party.id}, ${mId})">×</button>
+                unassignedMembers.forEach(m => {
+                    const job = jobs.find(j => j.id === m.jobId) || { name: '', iconUrl: '' };
+                    draggableList.innerHTML += `
+                        <div class="party-member-slot" draggable="true" ondragstart="drag(event, ${m.id}, null)" style="background:var(--panel-border); margin-bottom:0; cursor:grab;">
+                            ${renderJobIcon(job.iconUrl)} <strong>${m.name}</strong> <small>(${job.name})</small>
                         </div>
                     `;
                 });
             }
+        }
 
-            cardEl.innerHTML = `
-                <div class="party-header">
-                    <div style="display: flex; align-items: center; gap: 6px; flex: 1;">
-                        <input type="text" value="${party.name}" onchange="updatePartyName(${party.id}, this.value)" style="font-weight: bold; padding: 4px 8px; font-size: 13px;" placeholder="ชื่อปาร์ตี้">
+        const partyContainer = document.getElementById('partyListContainer');
+        if (!partyContainer) return;
+        partyContainer.innerHTML = '';
+
+        parties.forEach(p => {
+            let memberSlotsHtml = '';
+            p.memberIds.forEach((mId) => {
+                const m = members.find(x => x.id === mId);
+                if (!m) return;
+                const job = jobs.find(j => j.id === m.jobId) || { name: '', iconUrl: '' };
+
+                memberSlotsHtml += `
+                    <div class="party-member-slot" draggable="true" ondragstart="drag(event, ${m.id}, ${p.id})">
+                        <div style="display:flex; align-items:center; gap:6px; overflow:hidden;">
+                            ${renderJobIcon(job.iconUrl)}
+                            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                <strong>${m.name}</strong> <small style="color:var(--text-muted);">(${job.name})</small>
+                            </div>
+                        </div>
+                        <button class="btn-red" style="padding:1px 5px; font-size:10px;" onclick="removeMemberFromParty(${p.id}, ${m.id})" title="เอาออกจากปาร์ตี้">×</button>
                     </div>
-                    <select onchange="updatePartyType(${party.id}, this.value)" style="width: 85px; padding: 4px; font-size: 12px; font-weight: bold;">
-                        <option value="main" ${isMain ? 'selected' : ''}>Main</option>
-                        <option value="sub" ${!isMain ? 'selected' : ''}>Sub</option>
-                    </select>
-                </div>
-                <div class="party-drop-zone" ondragover="allowDrop(event)" ondrop="dropToParty(event, ${party.id})">
-                    ${memberSlotsHtml}
-                </div>
-                <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 11px; color: var(--text-muted);">สมาชิก: ${party.memberIds.length} คน</span>
-                    <button class="btn-red" style="padding: 2px 6px; font-size: 11px;" onclick="deleteParty(${party.id})">🗑️ ลบ</button>
+                `;
+            });
+
+            partyContainer.innerHTML += `
+                <div class="party-card type-${p.type}">
+                    <div class="party-header">
+                        <div>
+                            <input type="text" id="partyName_${p.id}" value="${p.name}" onchange="updatePartyName(${p.id}, this.value)" style="padding:3px 6px; font-weight:bold; width:130px;">
+                            <select id="partyType_${p.id}" onchange="updatePartyType(${p.id}, this.value)" style="padding:3px; font-size:11px; width:75px;">
+                                <option value="main" ${p.type === 'main' ? 'selected' : ''}>Main</option>
+                                <option value="sub" ${p.type === 'sub' ? 'selected' : ''}>Sub</option>
+                            </select>
+                        </div>
+                        <button class="btn-red" style="padding:2px 6px; font-size:11px;" onclick="deleteParty(${p.id})">🗑️</button>
+                    </div>
+                    <div class="party-drop-zone" ondragover="allowDrop(event)" ondrop="dropToParty(event, ${p.id})">
+                        ${memberSlotsHtml || '<div style="text-align:center; color:var(--text-muted); font-size:11px; padding:20px;"><i>ลากสมาชิกมาวางที่นี่</i></div>'}
+                    </div>
                 </div>
             `;
-            container.appendChild(cardEl);
         });
     }
 
-    function allowDrop(e) {
-        e.preventDefault();
+    let draggedData = { memberId: null, fromPartyId: null };
+
+    function drag(event, memberId, fromPartyId) {
+        draggedData = { memberId: memberId, fromPartyId: fromPartyId };
     }
 
-    function dragPartyMember(e, partyId, memberId) {
-        e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'party-member', sourcePartyId: partyId, memberId: memberId }));
+    function allowDrop(event) {
+        event.preventDefault();
     }
 
-    function dropToParty(e, targetPartyId) {
-        e.preventDefault();
-        try {
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const targetParty = parties.find(p => p.id === targetPartyId);
-            if (!targetParty) return;
+    function dropToParty(event, targetPartyId) {
+        event.preventDefault();
+        const mId = draggedData.memberId;
+        if (!mId) return;
 
-            if (data.type === 'guild-member') {
-                if (!targetParty.memberIds.includes(data.memberId)) {
-                    parties.forEach(p => {
-                        p.memberIds = p.memberIds.filter(id => id !== data.memberId);
-                    });
-                    targetParty.memberIds.push(data.memberId);
-                    saveAllData();
-                    renderPartyView();
-                }
-            } else if (data.type === 'party-member') {
-                const sourceParty = parties.find(p => p.id === data.sourcePartyId);
-                if (sourceParty && !targetParty.memberIds.includes(data.memberId)) {
-                    sourceParty.memberIds = sourceParty.memberIds.filter(id => id !== data.memberId);
-                    targetParty.memberIds.push(data.memberId);
-                    saveAllData();
-                    renderPartyView();
-                }
-            }
-        } catch (err) {
-            console.error(err);
+        parties.forEach(p => {
+            p.memberIds = p.memberIds.filter(id => id !== mId);
+        });
+
+        const targetParty = parties.find(p => p.id === targetPartyId);
+        if (targetParty && !targetParty.memberIds.includes(mId)) {
+            targetParty.memberIds.push(mId);
         }
+
+        saveAllData();
+        renderPartyView();
     }
 
-    function dropPartyMember(e, targetPartyId, targetIndex) {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const targetParty = parties.find(p => p.id === targetPartyId);
-            if (!targetParty) return;
+    function dropToGuildList(event) {
+        event.preventDefault();
+        const mId = draggedData.memberId;
+        if (!mId) return;
 
-            if (data.type === 'party-member') {
-                const sourceParty = parties.find(p => p.id === data.sourcePartyId);
-                if (!sourceParty) return;
+        parties.forEach(p => {
+            p.memberIds = p.memberIds.filter(id => id !== mId);
+        });
 
-                sourceParty.memberIds = sourceParty.memberIds.filter(id => id !== data.memberId);
-                if (!targetParty.memberIds.includes(data.memberId)) {
-                    targetParty.memberIds.splice(targetIndex, 0, data.memberId);
-                }
-                saveAllData();
-                renderPartyView();
-            }
-        } catch (err) {
-            console.error(err);
-        }
+        saveAllData();
+        renderPartyView();
     }
 
-    function dropToGuildList(e) {
-        e.preventDefault();
-        try {
-            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-            if (data.type === 'party-member') {
-                parties.forEach(p => {
-                    p.memberIds = p.memberIds.filter(id => id !== data.memberId);
-                });
-                saveAllData();
-                renderPartyView();
-            }
-        } catch (err) {
-            console.error(err);
+    function removeMemberFromParty(partyId, memberId) {
+        const p = parties.find(x => x.id === partyId);
+        if (p) {
+            p.memberIds = p.memberIds.filter(id => id !== memberId);
+            saveAllData();
+            renderPartyView();
         }
     }
 
@@ -2785,8 +2929,15 @@ async function sendSingleDiscordWebhook(itemId) {
         renderPartyView();
     }
 
+    function deleteParty(partyId) {
+        if (!confirm('⚠️ ยืนยันการลบปาร์ตี้นี้?')) return;
+        parties = parties.filter(p => p.id !== partyId);
+        saveAllData();
+        renderPartyView();
+    }
+
     function updatePartyName(partyId, newName) {
-        const p = parties.find(item => item.id === partyId);
+        const p = parties.find(x => x.id === partyId);
         if (p) {
             p.name = newName.trim() || 'Party';
             saveAllData();
@@ -2794,28 +2945,12 @@ async function sendSingleDiscordWebhook(itemId) {
     }
 
     function updatePartyType(partyId, newType) {
-        const p = parties.find(item => item.id === partyId);
+        const p = parties.find(x => x.id === partyId);
         if (p) {
             p.type = newType;
             saveAllData();
             renderPartyView();
         }
-    }
-
-    function removePartyMember(partyId, memberId) {
-        const p = parties.find(item => item.id === partyId);
-        if (p) {
-            p.memberIds = p.memberIds.filter(id => id !== memberId);
-            saveAllData();
-            renderPartyView();
-        }
-    }
-
-    function deleteParty(partyId) {
-        if (!confirm('⚠️ ยืนยันการลบปาร์ตี้นี้?')) return;
-        parties = parties.filter(p => p.id !== partyId);
-        saveAllData();
-        renderPartyView();
     }
 
     function openPartyPreviewModal(typeFilter) {
@@ -2826,34 +2961,31 @@ async function sendSingleDiscordWebhook(itemId) {
         generatePartyCanvasGrid4Col(filteredParties, typeFilter);
     }
 
-    function generatePartyCanvasGrid4Col(targetParties, typeLabel) {
+    function generatePartyCanvasGrid4Col(filteredParties, typeFilter) {
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
 
         const width = 1200;
         const colCount = 4;
         const cardWidth = 275;
-        const cardGap = 15;
-        const startX = 22;
+        const cardGap = 20;
+        const startX = 25;
         const headerHeight = 90;
         const footerHeight = 45;
 
         let totalGridHeight = 0;
         const rowHeights = [];
-        const rowCount = Math.ceil(targetParties.length / colCount);
+        const rowCount = Math.ceil(filteredParties.length / colCount);
 
         for (let r = 0; r < rowCount; r++) {
             let maxCardHeightInRow = 60;
             for (let c = 0; c < colCount; c++) {
                 const index = (r * colCount) + c;
-                if (index < targetParties.length) {
-                    const party = targetParties[index];
-                    const memberCount = party.memberIds.length;
-                    const contentHeight = memberCount === 0 ? 40 : memberCount * 38;
+                if (index < filteredParties.length) {
+                    const p = filteredParties[index];
+                    const contentHeight = p.memberIds.length === 0 ? 35 : p.memberIds.length * 36;
                     const currentCardH = 55 + contentHeight + 15;
-                    if (currentCardH > maxCardHeightInRow) {
-                        maxCardHeightInRow = currentCardH;
-                    }
+                    if (currentCardH > maxCardHeightInRow) maxCardHeightInRow = currentCardH;
                 }
             }
             rowHeights.push(maxCardHeightInRow);
@@ -2875,7 +3007,7 @@ async function sendSingleDiscordWebhook(itemId) {
 
         ctx.fillStyle = "#2980b9";
         ctx.font = "bold 22px 'Segoe UI', Tahoma, sans-serif";
-        ctx.fillText(`⚔️ รายงานสรุปปาร์ตี้กิลด์ (${typeLabel.toUpperCase()})`, 25, 38);
+        ctx.fillText(`⚔️ รายงานสรุปปาร์ตี้กิลด์ (${typeFilter.toUpperCase()})`, 25, 38);
 
         ctx.fillStyle = "#7f8c8d";
         ctx.font = "14px 'Segoe UI', Tahoma, sans-serif";
@@ -2884,10 +3016,10 @@ async function sendSingleDiscordWebhook(itemId) {
         const jobImages = {};
         const imgPromises = [];
 
-        targetParties.forEach(party => {
-            party.memberIds.forEach(mId => {
-                const member = members.find(m => m.id === mId);
-                const job = member ? jobs.find(j => j.id === member.jobId) : null;
+        filteredParties.forEach(p => {
+            p.memberIds.forEach(mId => {
+                const m = members.find(x => x.id === mId);
+                const job = m ? jobs.find(j => j.id === m.jobId) : null;
                 if (job && job.iconUrl && !jobImages[job.id]) {
                     imgPromises.push(new Promise((resolve) => {
                         const img = new Image();
@@ -2908,52 +3040,56 @@ async function sendSingleDiscordWebhook(itemId) {
 
                 for (let c = 0; c < colCount; c++) {
                     const index = (r * colCount) + c;
-                    if (index >= targetParties.length) break;
+                    if (index >= filteredParties.length) break;
 
-                    const party = targetParties[index];
+                    const p = filteredParties[index];
                     const cardX = startX + (c * (cardWidth + cardGap));
                     const cardY = currentY;
 
                     ctx.fillStyle = "#ffffff";
-                    ctx.strokeStyle = party.type === 'main' ? "#2980b9" : "#e67e22";
+                    ctx.strokeStyle = "#bcd2e8";
                     ctx.lineWidth = 2;
                     ctx.fillRect(cardX, cardY, cardWidth, currentCardHeight);
                     ctx.strokeRect(cardX, cardY, cardWidth, currentCardHeight);
 
-                    ctx.fillStyle = party.type === 'main' ? "#2980b9" : "#e67e22";
+                    ctx.fillStyle = p.type === 'main' ? "#2980b9" : "#d35400";
                     ctx.fillRect(cardX, cardY, cardWidth, 40);
 
                     ctx.fillStyle = "#ffffff";
                     ctx.font = "bold 14px 'Segoe UI', Tahoma, sans-serif";
-                    ctx.fillText(`🛡️ ${party.name} (${party.memberIds.length} คน)`, cardX + 10, cardY + 25);
+                    ctx.fillText(`${p.name} (${p.memberIds.length} คน)`, cardX + 12, cardY + 25);
 
                     let slotY = cardY + 50;
-                    if (party.memberIds.length === 0) {
-                        ctx.fillStyle = "#e74c3c";
+                    if (p.memberIds.length === 0) {
+                        ctx.fillStyle = "#7f8c8d";
                         ctx.font = "italic 12px 'Segoe UI', Tahoma, sans-serif";
-                        ctx.fillText("(ไม่มีสมาชิกในปาร์ตี้)", cardX + 15, slotY + 20);
+                        ctx.fillText("(ไม่มีสมาชิกในปาร์ตี้)", cardX + 12, slotY + 20);
                     } else {
-                        party.memberIds.forEach((mId, mIdx) => {
-                            const member = members.find(m => m.id === mId);
-                            const job = member ? jobs.find(j => j.id === member.jobId) : null;
+                        p.memberIds.forEach((mId, mIdx) => {
+                            const m = members.find(x => x.id === mId);
+                            const job = m ? jobs.find(j => j.id === m.jobId) : null;
 
                             ctx.fillStyle = (mIdx % 2 === 0) ? "#f9fcfd" : "#ffffff";
-                            ctx.fillRect(cardX + 6, slotY, cardWidth - 12, 34);
+                            ctx.fillRect(cardX + 6, slotY, cardWidth - 12, 32);
                             ctx.strokeStyle = "#e2e8f0";
                             ctx.lineWidth = 1;
-                            ctx.strokeRect(cardX + 6, slotY, cardWidth - 12, 34);
+                            ctx.strokeRect(cardX + 6, slotY, cardWidth - 12, 32);
 
                             let textX = cardX + 12;
                             if (job && jobImages[job.id]) {
-                                ctx.drawImage(jobImages[job.id], cardX + 10, slotY + 5, 24, 24);
+                                ctx.drawImage(jobImages[job.id], cardX + 10, slotY + 4, 24, 24);
                                 textX = cardX + 38;
                             }
 
                             ctx.fillStyle = "#2c3e50";
                             ctx.font = "bold 12px 'Segoe UI', Tahoma, sans-serif";
-                            ctx.fillText(`${mIdx + 1}. ${member ? member.name : 'Unknown'}`, textX, slotY + 22);
+                            let memberText = `${mIdx + 1}. ${m ? m.name : 'Unknown'}`;
+                            if (ctx.measureText(memberText).width > 160) {
+                                memberText = memberText.substring(0, 12) + '...';
+                            }
+                            ctx.fillText(memberText, textX, slotY + 21);
 
-                            slotY += 38;
+                            slotY += 36;
                         });
                     }
                 }
@@ -2967,7 +3103,7 @@ async function sendSingleDiscordWebhook(itemId) {
 
             ctx.fillStyle = "#7f8c8d";
             ctx.font = "italic 12px 'Segoe UI', Tahoma, sans-serif";
-            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ RO Guild Loot System Pro (Party Card Grid 4 Columns)", 25, height - 16);
+            ctx.fillText("✨ สร้างโดยระบบอัตโนมัติ ROOC Guild Loot System Pro (Party Grid 4 Columns)", 25, height - 16);
 
             currentCanvasDataUrl = canvas.toDataURL("image/png");
             document.getElementById('imagePreviewModal').style.display = 'block';
@@ -2975,22 +3111,22 @@ async function sendSingleDiscordWebhook(itemId) {
     }
 
     function exportCustomBackupData() {
-        const data = {};
-        if (document.getElementById('expMember').checked) data.members = members;
-        if (document.getElementById('expItems').checked) data.items = items;
-        if (document.getElementById('expJobs').checked) data.jobs = jobs;
-        if (document.getElementById('expQueues').checked) data.queues = queues;
-        if (document.getElementById('expLogs').checked) data.dailyLogs = dailyLogs;
-        if (document.getElementById('expParties').checked) data.parties = parties;
+        const backupObj = {};
+        if (document.getElementById('expMember').checked) backupObj.members = members;
+        if (document.getElementById('expItems').checked) backupObj.items = items;
+        if (document.getElementById('expJobs').checked) backupObj.jobs = jobs;
+        if (document.getElementById('expQueues').checked) backupObj.queues = queues;
+        if (document.getElementById('expLogs').checked) backupObj.dailyLogs = dailyLogs;
+        if (document.getElementById('expParties').checked) backupObj.parties = parties;
 
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
         downloadAnchor.setAttribute("download", `RO_Guild_Backup_${getTodayISO()}.json`);
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         downloadAnchor.remove();
-        alert('✅ ส่งออกข้อมูล (Backup) เป็นไฟล์ JSON เรียบร้อยแล้ว!');
+        alert('✅ ส่งออกไฟล์ Backup สำเร็จ!');
     }
 
     function triggerImportBackup() {
@@ -3004,43 +3140,43 @@ async function sendSingleDiscordWebhook(itemId) {
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const imported = JSON.parse(e.target.result);
-                if (imported.members) { members = imported.members; localStorage.setItem('ro_members', JSON.stringify(members)); }
-                if (imported.items) { items = imported.items; localStorage.setItem('ro_items', JSON.stringify(items)); }
-                if (imported.jobs) { jobs = imported.jobs; localStorage.setItem('ro_jobs', JSON.stringify(jobs)); }
-                if (imported.queues) { queues = imported.queues; localStorage.setItem('ro_queues', JSON.stringify(queues)); }
-                if (imported.dailyLogs) { dailyLogs = imported.dailyLogs; localStorage.setItem('ro_daily_logs', JSON.stringify(dailyLogs)); }
-                if (imported.parties) { parties = imported.parties; localStorage.setItem('ro_parties', JSON.stringify(parties)); }
+                const data = JSON.parse(e.target.result);
+                if (data.members) { members = data.members; localStorage.setItem('ro_members', JSON.stringify(members)); }
+                if (data.items) { items = data.items; localStorage.setItem('ro_items', JSON.stringify(items)); }
+                if (data.jobs) { jobs = data.jobs; localStorage.setItem('ro_jobs', JSON.stringify(jobs)); }
+                if (data.queues) { queues = data.queues; localStorage.setItem('ro_queues', JSON.stringify(queues)); }
+                if (data.dailyLogs) { dailyLogs = data.dailyLogs; localStorage.setItem('ro_daily_logs', JSON.stringify(dailyLogs)); }
+                if (data.parties) { parties = data.parties; localStorage.setItem('ro_parties', JSON.stringify(parties)); }
 
-                alert('✅ นำเข้าข้อมูล (Restore) สำเร็จเรียบร้อยแล้ว!');
                 initApp();
+                alert('✅ นำเข้าข้อมูลและ Restore สำเร็จเรียบร้อยแล้ว!');
             } catch (err) {
-                alert('❌ ไฟล์ JSON ไม่ถูกต้องหรือเสียหาย!');
                 console.error(err);
+                alert('❌ ไฟล์ JSON ไม่ถูกต้อง หรือเกิดข้อผิดพลาดในการอ่านไฟล์!');
             }
         };
         reader.readAsText(file);
+        event.target.value = '';
     }
 
     function resetQueueData() {
-        if (!confirm('⚠️ ยืนยันการล้างลำดับคิวทั้งหมดเพื่อเริ่มต้นรอบใหม่?')) return;
+        if (!confirm('⚠️ ยืนยันที่จะล้างข้อมูลคิวทั้งหมดเพื่อเริ่มรอบใหม่?')) return;
         queues = [];
         initQueues();
-        saveAllData();
         updateQueueView();
-        alert('✅ รีเซ็ตลำดับคิวทั้งหมดเรียบร้อยแล้ว!');
+        alert('✅ ล้างคิวทั้งหมดเรียบร้อยแล้ว');
     }
 
     function clearLogsAll() {
-        if (!confirm('⚠️ ยืนยันการล้างประวัติการแจก (Daily Logs) ทั้งหมด?')) return;
+        if (!confirm('⚠️ ยืนยันการลบประวัติการแจกทั้งหมด?')) return;
         dailyLogs = [];
         saveAllData();
         updateDashboard();
-        alert('✅ ล้างประวัติการแจกทั้งหมดเรียบร้อยแล้ว!');
+        alert('✅ ลบประวัติการแจกทั้งหมดแล้ว');
     }
 
     function factoryReset() {
-        if (!confirm('⚠️ คำเตือนสูงสุด: การรีเซ็ตระบบทั้งหมดจะลบข้อมูลทุกอย่างกลับเป็นค่าเริ่มต้น คุณแน่ใจหรือไม่?')) return;
+        if (!confirm('⚠️ คำเตือนขั้นสูงสุด! การรีเซ็ตนี้จะลบข้อมูลทั้งหมดในเครื่องและกลับเป็นค่าเริ่มต้น คุณแน่ใจหรือไม่?')) return;
         localStorage.clear();
         location.reload();
     }
