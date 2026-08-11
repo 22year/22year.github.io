@@ -1720,7 +1720,7 @@ async function sendSingleDiscordWebhook(itemId) {
                 }
 
                 tbody.innerHTML += `
-                    <tr style="${entry.isSkipped ? 'background: #fdf2e9;' : (entry.pending > 0 ? 'background: #fadbd8;' : '')}">
+                    <tr style="${entry.isSkipped ? 'background: #fdf2e9;' : (entry.pending > 0 ? 'background: #263940;' : '')}">
                         <td style="text-align:center;">
                             <input type="checkbox" ${entry.isSkipped ? 'checked' : ''} onchange="toggleSkip(${itemId}, ${entry.memberId})">
                         </td>
