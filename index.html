@@ -596,7 +596,7 @@
     <button onclick="showLoginScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">กลับไปหน้าเข้าสู่ระบบ</button>
 </div>
 
-<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (มีกรอบสีรุ้งเคลื่อนไหว) -->
+<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key หรือเติมเงิน TrueMoney (มีกรอบสีรุ้งเคลื่อนไหว) -->
 <div id="redeemOnlyScreen" class="panel" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px;">
     <h2 style="margin-top: 0; color: #ffffff;">🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
     <p id="redeemNoticeMessage" style="color: #ffc107; margin: 15px 0; font-size: 14px;"></p>
@@ -625,13 +625,34 @@
         </div>
     </div>
 
+    <!-- 🔑 ช่องเติมด้วย Serial Key -->
     <div class="form-group" style="text-align: left; margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #ccc;">Serial Key:</label>
         <input type="text" id="firstTimeKeyInput" placeholder="กรอก Serial Key ที่นี่..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
     </div>
     
-    <!-- ปุ่มดำเนินการหลัก -->
-    <button onclick="handleFirstTimeRedeem()" class="btn-green" style="display: block; width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">เปิดใช้งานระบบ</button>
+    <button onclick="handleFirstTimeRedeem()" class="btn-green" style="display: block; width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">เปิดใช้งานระบบด้วย Key</button>
+
+    <!-- 🧧 เส้นแบ่งสัดส่วนระหว่าง Serial Key กับ TrueMoney -->
+    <div style="display: flex; align-items: center; text-align: center; color: #666; margin: 20px 0; font-size: 12px;">
+        <div style="flex: 1; border-bottom: 1px solid #333;"></div>
+        <span style="padding: 0 10px; color: #888;">หรือเติมเงินอัตโนมัติ</span>
+        <div style="flex: 1; border-bottom: 1px solid #333;"></div>
+    </div>
+
+    <!-- 🧧 ช่องเติม Air Time ด้วยซองของขวัญ TrueMoney -->
+    <div style="margin-bottom: 20px; text-align: left; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;">
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #ff6600; text-align: center;">🧧 ซองของขวัญ TrueMoney (TrueWallet)</div>
+        
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #ccc;">ลิงก์ซองของขวัญ:</label>
+            <input type="text" id="giftLinkInput" placeholder="https://gift.truemoney.com/campaign/?v=..." style="width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box; font-size: 12px;">
+        </div>
+        
+        <button onclick="handleTrueMoneyRedeem()" style="display: block; width: 100%; padding: 9px; background-color: #ff6600; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#e05b00'" onmouseout="this.style.backgroundColor='#ff6600'">
+            🎁 ยืนยันการเติมเงินซองของขวัญ
+        </button>
+    </div>
 
     <!-- 🎮 ปุ่มติดต่อซื้อผ่าน Discord -->
     <a href="https://discord.com/users/274781178706264065" target="_blank" 
@@ -1415,6 +1436,54 @@ async function handleFirstTimeRedeem() {
     } catch (err) {
         console.error(err);
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
+    }
+}
+
+async function handleTrueMoneyRedeem() {
+    const giftLink = document.getElementById('giftLinkInput').value.trim();
+    const username = currentUser.username || localStorage.getItem("ro_username");
+
+    if (!giftLink) {
+        alert('กรุณากรอกลิงก์ซองของขวัญ TrueMoney!');
+        return;
+    }
+
+    if (!giftLink.includes('truemoney.com')) {
+        alert('รูปแบบลิงก์ซองของขวัญไม่ถูกต้อง!');
+        return;
+    }
+
+    if (!confirm('ยืนยันการใช้ซองของขวัญนี้เพื่อเติม Air Time?')) {
+        return;
+    }
+
+    try {
+        // แสดงสถานะกำลังโหลด (ถ้ามี)
+        alert('กำลังตรวจสอบซองของขวัญ กรุณารอสักครู่...');
+
+        const url = `${WEB_APP_URL}?action=redeemTrueWallet&user=${encodeURIComponent(username)}&link=${encodeURIComponent(giftLink)}`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+            redirect: 'follow'
+        });
+        
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert(result.message || 'เติมเงินสำเร็จ! เพิ่ม Air Time เรียบร้อยแล้ว');
+            // รีเฟรชหน้าเว็บหรืออัปเดตข้อมูลวันหมดอายุใหม่
+            localStorage.setItem("ro_expire_date", result.newExpireDate);
+            location.reload(); 
+        } else {
+            alert('เติมเงินไม่สำเร็จ: ' + (result.message || 'ซองอาจจะถูกใช้ไปแล้ว หรือยอดเงินไม่ตรง'));
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
     }
 }
 
