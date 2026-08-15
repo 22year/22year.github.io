@@ -598,7 +598,7 @@
         <span id="currentRoleBadge" class="role-badge"></span>
         <!-- เพิ่มส่วนนี้ -->
         <span style="margin-left: 15px; font-size: 13px; color: var(--text-muted);">
-            ⏳ Air Time ถึง: <strong id="currentExpireDate" style="color: var(--gold-accent, #ffc107);"></strong>
+            ⏳ Air Time ถึง: <strong id="currentExpireDate" style="color: #ff0022;"></strong>
         </span>
     </div>
     <div>
@@ -1208,9 +1208,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (userElem) userElem.innerText = username;
 
         const expireElem = document.getElementById('currentExpireDate');
-        if (expireElem) {
-            expireElem.innerText = expireDate || "-";
-        }
+if (expireElem) {
+    const rawDate = currentUser.expireDate || "-";
+    const remainingText = getDaysRemaining(rawDate);
+    expireElem.innerText = rawDate + remainingText;
+}
 
         const badge = document.getElementById('currentRoleBadge');
         if (badge && role) {
@@ -1285,6 +1287,32 @@ async function handleFirstTimeRedeem() {
     } catch (err) {
         console.error(err);
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
+    }
+}
+
+	function getDaysRemaining(expireDateStr) {
+    if (!expireDateStr || expireDateStr === "-" || expireDateStr === "") return "";
+    
+    // แปลงรูปแบบวันที่จาก "dd/MM/yyyy" เป็น Date object ของ JS
+    const parts = expireDateStr.split('/');
+    if (parts.length !== 3) return "";
+    
+    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+    const today = new Date();
+    
+    // ตั้งค่าเวลาให้เป็น 00:00:00 เหมือนกัน เพื่อคำนวณวันให้แม่นยำ
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = expDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 0) {
+        return ` (อีก ${diffDays} วัน)`;
+    } else if (diffDays === 0) {
+        return ` (หมดอายุวันนี้)`;
+    } else {
+        return ` (หมดอายุแล้ว)`;
     }
 }
 
