@@ -1078,7 +1078,12 @@ async function handleLogin() {
     const url = `${WEB_APP_URL}?action=checkLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+            redirect: 'follow'
+        });
         const result = await response.json();
 
         if (result.status === "success") {
@@ -1259,7 +1264,12 @@ async function handleFirstTimeRedeem() {
 
     try {
         alert('กำลังตรวจสอบ Serial Key...');
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'omit',
+            redirect: 'follow'
+        });
         const result = await response.json();
 
         if (result.status === "success") {
@@ -1277,25 +1287,6 @@ async function handleFirstTimeRedeem() {
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
     }
 }
-
-        // โหลดค่า Webhook
-        ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
-            const inputEl = document.getElementById(`webhookUrl_${room}`);
-            if (inputEl) {
-                inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
-            }
-        });
-
-        // เรียกใช้งานแอปหลักของคุณ (ถ้ามีฟังก์ชัน initApp)
-        if (typeof initApp === 'function') {
-            initApp();
-        }
-    } else {
-        // ถ้ายังไม่เคยล็อกอิน หรือ Logout ออกมา ให้แสดงหน้า Login
-        document.getElementById('loginScreen').style.display = 'block';
-        document.getElementById('mainApp').style.display = 'none';
-    }
-});
 
     function saveRoomWebhook(room) {
         const url = document.getElementById(`webhookUrl_${room}`).value.trim();
