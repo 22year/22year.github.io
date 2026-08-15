@@ -565,31 +565,46 @@
         <p style="color: var(--text-muted);">เข้าสู่ระบบเพื่อจัดการคิวแจกของ</p>
         <div class="form-group" style="text-align: left;">
             <label>ผู้ใช้งาน (Username):</label>
-            <input type="text" id="loginUser" placeholder="admin หรือ staff">
+            <input type="text" id="loginUser" placeholder="Username">
         </div>
         <div class="form-group" style="text-align: left;">
             <label>รหัสผ่าน (Password):</label>
-            <input type="password" id="loginPass" placeholder="1234">
+            <input type="password" id="loginPass" placeholder="Password">
         </div>
         <button class="btn-blue" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">เข้าสู่ระบบ</button>
-        <div style="margin-top: 15px; font-size: 12px; color: #888; text-align: left;">
-            * รหัสผ่านทดสอบ:<br>
-            - <strong>Admin:</strong> user: <code>admin</code> / pass: <code>1234</code><br>
-            - <strong>Staff:</strong> user: <code>staff</code> / pass: <code>1234</code>
-        </div>
     </div>
+	
+	<!-- หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (ซ่อนไว้ก่อนเริ่มต้น) -->
+	<div id="redeemOnlyScreen" style="display: none; max-width: 400px; margin: 50px auto; padding: 20px; background: var(--bg-card, #222); border-radius: 8px; text-align: center; color: #fff;">
+    <h2>🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
+    <p id="redeemNoticeMessage" style="color: #ffc107; margin: 15px 0; font-size: 14px;"></p>
+    
+    <div style="margin-bottom: 15px;">
+        <span style="font-size: 14px; color: #aaa;">บัญชีผู้ใช้: <strong id="pendingUsername" style="color: #fff;"></strong></span>
+    </div>
+
+    <input type="text" id="firstTimeKeyInput" placeholder="กรอก Serial Key ที่นี่..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; margin-bottom: 15px;">
+    
+    <button onclick="handleFirstTimeRedeem()" style="width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px;">เปิดใช้งานระบบ</button>
+    
+    <button onclick="handleLogout()" style="background: transparent; color: #aaa; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">ออกจากระบบ</button>
+	</div>
 
     <div id="mainApp" style="display: none;">
         
-        <div class="user-bar">
-            <div>
-                👤 ผู้ใช้งาน: <strong id="currentUsername"></strong> 
-                <span id="currentRoleBadge" class="role-badge"></span>
-            </div>
-            <div>
-                <button class="btn-red" onclick="handleLogout()">ออกจากระบบ</button>
-            </div>
-        </div>
+<div class="user-bar">
+    <div>
+        👤 ผู้ใช้งาน: <strong id="currentUsername"></strong> 
+        <span id="currentRoleBadge" class="role-badge"></span>
+        <!-- เพิ่มส่วนนี้ -->
+        <span style="margin-left: 15px; font-size: 13px; color: var(--text-muted);">
+            ⏳ Air Time ถึง: <strong id="currentExpireDate" style="color: var(--gold-accent, #ffc107);"></strong>
+        </span>
+    </div>
+    <div>
+        <button class="btn-red" onclick="handleLogout()">ออกจากระบบ</button>
+    </div>
+</div>
 
         <h1>🏰 ระบบจัดคิวแจกไอเทมกิลด์ (ROOC Theme)</h1>
 
@@ -1050,32 +1065,158 @@
 <script>
     let currentUser = null;
 
-    function handleLogin() {
-        const u = document.getElementById('loginUser').value.trim();
-        const p = document.getElementById('loginPass').value.trim();
+async function handleLogin() {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value.trim();
 
-        if (u === 'admin' && p === '1234') {
-            currentUser = { username: 'Admin', role: 'admin' };
-        } else if (u === 'staff' && p === '1234') {
-            currentUser = { username: 'Staff', role: 'staff' };
+    if (!u || !p) {
+        alert('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน!');
+        return;
+    }
+
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec"; 
+    const url = `${WEB_APP_URL}?action=checkLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
+
+    try {
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === "success") {
+            currentUser = { username: u, role: result.role, expireDate: result.expireDate };
+            localStorage.setItem("ro_logged_in", "true");
+            localStorage.setItem("ro_expire_date", result.expireDate);
+            localStorage.setItem("ro_role", result.role);
+            localStorage.setItem("ro_username", u);
+            localStorage.setItem("ro_status", "success");
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+
+        } else if (result.status === "pending_redeem" || result.status === "expired") {
+            currentUser = { username: u, role: result.role, expireDate: '-' };
+            localStorage.setItem("ro_logged_in", "true");
+            localStorage.setItem("ro_username", u);
+            localStorage.setItem("ro_role", result.role);
+            localStorage.setItem("ro_expire_date", "");
+            localStorage.setItem("ro_status", result.status);
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('redeemOnlyScreen').style.display = 'block';
+            document.getElementById('pendingUsername').innerText = u;
+            document.getElementById('redeemNoticeMessage').innerText = result.message;
+            return;
         } else {
-            alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!');
+            alert(result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+            return;
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
+        return;
+    }
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    
+    document.getElementById('currentUsername').innerText = currentUser.username;
+    
+    const expireElem = document.getElementById('currentExpireDate');
+    if (expireElem) {
+        expireElem.innerText = currentUser.expireDate;
+    }
+
+    const badge = document.getElementById('currentRoleBadge');
+    if (badge) {
+        badge.innerText = currentUser.role.toUpperCase();
+        badge.className = `role-badge role-${currentUser.role}`;
+    }
+
+    document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
+    });
+
+    ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
+        const inputEl = document.getElementById(`webhookUrl_${room}`);
+        if (inputEl) {
+            inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
+        }
+    });
+
+    if (typeof initApp === 'function') {
+        initApp();
+    }
+}
+
+function handleLogout() {
+    currentUser = null;
+    localStorage.removeItem("ro_logged_in");     
+    localStorage.removeItem("ro_username");
+    localStorage.removeItem("ro_role");
+    localStorage.removeItem("ro_expire_date");
+    localStorage.removeItem("ro_status");
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('redeemOnlyScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const isLoggedIn = localStorage.getItem("ro_logged_in");
+    const username = localStorage.getItem("ro_username");
+    const role = localStorage.getItem("ro_role");
+    const expireDate = localStorage.getItem("ro_expire_date");
+    const userStatus = localStorage.getItem("ro_status");
+
+    if (isLoggedIn === "true" && username) {
+        if (typeof currentUser === 'undefined' || !currentUser) {
+            currentUser = { username: username, role: role, expireDate: expireDate };
+        }
+
+        if (userStatus === "pending_redeem" || userStatus === "expired" || !expireDate) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+            
+            const redeemScreen = document.getElementById('redeemOnlyScreen');
+            if (redeemScreen) redeemScreen.style.display = 'block';
+
+            const pendingUser = document.getElementById('pendingUsername');
+            if (pendingUser) pendingUser.innerText = username;
+
+            const noticeMsg = document.getElementById('redeemNoticeMessage');
+            if (noticeMsg) {
+                noticeMsg.innerText = userStatus === "expired" 
+                    ? "Air Time ของคุณหมดอายุแล้ว กรุณากรอก Serial Key เพื่อต่ออายุ" 
+                    : "บัญชีของคุณยังไม่ได้เปิดใช้งาน กรุณากรอก Serial Key เพื่อเริ่มต้นใช้งาน";
+            }
             return;
         }
 
         document.getElementById('loginScreen').style.display = 'none';
+        const redeemScreen = document.getElementById('redeemOnlyScreen');
+        if (redeemScreen) redeemScreen.style.display = 'none';
+        
         document.getElementById('mainApp').style.display = 'block';
         
-        document.getElementById('currentUsername').innerText = currentUser.username;
+        const userElem = document.getElementById('currentUsername');
+        if (userElem) userElem.innerText = username;
+
+        const expireElem = document.getElementById('currentExpireDate');
+        if (expireElem) {
+            expireElem.innerText = expireDate || "-";
+        }
+
         const badge = document.getElementById('currentRoleBadge');
-        badge.innerText = currentUser.role.toUpperCase();
-        badge.className = `role-badge role-${currentUser.role}`;
+        if (badge && role) {
+            badge.innerText = role.toUpperCase();
+            badge.className = `role-badge role-${role}`;
+        }
 
         document.querySelectorAll('.admin-only').forEach(el => {
-            el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
+            el.style.display = role === 'admin' ? 'inline-block' : 'none';
         });
 
-        // โหลดค่า Webhook แยกห้องมาแสดงใน Admin Panel
         ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
             const inputEl = document.getElementById(`webhookUrl_${room}`);
             if (inputEl) {
@@ -1083,22 +1224,85 @@
             }
         });
 
-        initApp();
+        if (typeof initApp === 'function') {
+            initApp();
+        }
+    } else {
+        document.getElementById('loginScreen').style.display = 'block';
+        const redeemScreen = document.getElementById('redeemOnlyScreen');
+        if (redeemScreen) redeemScreen.style.display = 'none';
+        document.getElementById('mainApp').style.display = 'none';
+    }
+});
+
+async function handleFirstTimeRedeem() {
+    const keyInput = document.getElementById('firstTimeKeyInput');
+    if (!keyInput) {
+        alert('ไม่พบช่องกรอก Serial Key');
+        return;
+    }
+    
+    const key = keyInput.value.trim();
+
+    if (!key) {
+        alert('กรุณากรอก Serial Key!');
+        return;
     }
 
-    function handleLogout() {
-        currentUser = null;
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'block';
-        document.getElementById('loginUser').value = '';
-        document.getElementById('loginPass').value = '';
+    if (!currentUser || !currentUser.username) {
+        alert('ไม่พบข้อมูลผู้ใช้งาน กรุณาล็อกอินใหม่อีกครั้ง');
+        return;
     }
+
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec"; 
+    const url = `${WEB_APP_URL}?action=redeemKey&user=${encodeURIComponent(currentUser.username)}&key=${encodeURIComponent(key)}`;
+
+    try {
+        alert('กำลังตรวจสอบ Serial Key...');
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert(result.message);
+            
+            localStorage.setItem("ro_status", "success");
+            localStorage.setItem("ro_expire_date", result.expireDate);
+            
+            location.reload();
+        } else {
+            alert(result.message || 'ไม่สามารถเติม Air Time ได้');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
+    }
+}
+
+        // โหลดค่า Webhook
+        ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
+            const inputEl = document.getElementById(`webhookUrl_${room}`);
+            if (inputEl) {
+                inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
+            }
+        });
+
+        // เรียกใช้งานแอปหลักของคุณ (ถ้ามีฟังก์ชัน initApp)
+        if (typeof initApp === 'function') {
+            initApp();
+        }
+    } else {
+        // ถ้ายังไม่เคยล็อกอิน หรือ Logout ออกมา ให้แสดงหน้า Login
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('mainApp').style.display = 'none';
+    }
+});
 
     function saveRoomWebhook(room) {
         const url = document.getElementById(`webhookUrl_${room}`).value.trim();
         localStorage.setItem(`ro_webhook_${room}`, url);
         alert(`✅ บันทึก Discord Webhook ของห้อง [${room.toUpperCase()}] เรียบร้อยแล้ว!`);
     }
+	
 
     async function sendDiscordWebhookNotification(room, content) {
         const webhookUrl = localStorage.getItem(`ro_webhook_${room}`);
