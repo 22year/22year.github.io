@@ -572,23 +572,78 @@
             <input type="password" id="loginPass" placeholder="Password">
         </div>
         <button class="btn-blue" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">เข้าสู่ระบบ</button>
+		<button onclick="showRegisterScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px; margin-top: 10px;">ยังไม่มีบัญชี? สมัครสมาชิกที่นี่</button>
     </div>
 	
-	<!-- หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (ซ่อนไว้ก่อนเริ่มต้น) -->
-	<div id="redeemOnlyScreen" style="display: none; max-width: 400px; margin: 50px auto; padding: 20px; background: var(--bg-card, #222); border-radius: 8px; text-align: center; color: #fff;">
-    <h2>🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
+<!-- 📝 หน้าจอสมัครสมาชิก (เพิ่มคลาส panel เพื่อให้มีกรอบสีรุ้งเคลื่อนไหว) -->
+<div id="registerScreen" class="panel" style="display: none; max-width: 400px; margin: 50px auto; text-align: center; box-sizing: border-box;">
+    <h2>📝 สมัครสมาชิกใหม่</h2>
+    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">สร้างบัญชีผู้ใช้ใหม่สำหรับเข้าสู่ระบบ</p>
+    <p id="registerMessage" style="color: #ffc107; margin: 10px 0; font-size: 14px;"></p>
+    
+    <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-size: 13px;">ผู้ใช้งาน (Username):</label>
+        <input type="text" id="regUser" placeholder="กำหนด Username...">
+    </div>
+    
+    <div class="form-group" style="text-align: left; margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 5px; font-size: 13px;">รหัสผ่าน (Password):</label>
+        <input type="password" id="regPass" placeholder="กำหนด Password...">
+    </div>
+    
+    <button class="btn-blue" onclick="handleRegister()" style="width: 100%; margin-bottom: 10px;">ยืนยันการสมัคร</button>
+    
+    <button onclick="showLoginScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">กลับไปหน้าเข้าสู่ระบบ</button>
+</div>
+
+<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (มีกรอบสีรุ้งเคลื่อนไหว) -->
+<div id="redeemOnlyScreen" class="panel" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px;">
+    <h2 style="margin-top: 0; color: #ffffff;">🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
     <p id="redeemNoticeMessage" style="color: #ffc107; margin: 15px 0; font-size: 14px;"></p>
     
     <div style="margin-bottom: 15px;">
         <span style="font-size: 14px; color: #aaa;">บัญชีผู้ใช้: <strong id="pendingUsername" style="color: #fff;"></strong></span>
     </div>
 
-    <input type="text" id="firstTimeKeyInput" placeholder="กรอก Serial Key ที่นี่..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #111; color: #fff; box-sizing: border-box; margin-bottom: 15px;">
+    <!-- 📦 ตารางแสดงเรทราคาและแพ็กเกจ -->
+    <div style="margin-bottom: 20px; text-align: left; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;">
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #f0ad4e; text-align: center;">📋 รายการแพ็กเกจ Air Time</div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;">
+            <span>⏱️ 30 วัน (รายเดือน)</span>
+            <span><strong style="color: #fff;">100 บ.</strong></span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;">
+            <span>⏱️ 180 วัน (คุ้มสุด)</span>
+            <span><s style="color: #777;">600.-</s> <strong style="color: #ffc107;">540 บ.</strong></span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px;">
+            <span>⏱️ 365 วัน (VIP ปี)</span>
+            <span><s style="color: #777;">1,200.-</s> <strong style="color: #28a745;">960 บ.</strong></span>
+        </div>
+    </div>
+
+    <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #ccc;">Serial Key:</label>
+        <input type="text" id="firstTimeKeyInput" placeholder="กรอก Serial Key ที่นี่..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
+    </div>
     
-    <button onclick="handleFirstTimeRedeem()" style="width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 10px;">เปิดใช้งานระบบ</button>
+    <!-- ปุ่มดำเนินการหลัก -->
+    <button onclick="handleFirstTimeRedeem()" class="btn-green" style="display: block; width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">เปิดใช้งานระบบ</button>
+
+    <!-- 🎮 ปุ่มติดต่อซื้อผ่าน Discord -->
+    <a href="https://discord.com/users/274781178706264065" target="_blank" 
+       onmouseover="this.style.backgroundColor='#4752C4'" 
+       onmouseout="this.style.backgroundColor='#5865F2'"
+       style="display: block; width: 100%; padding: 10px; background-color: #5865F2; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;">
+        🎮 ติดต่อซื้อผ่าน Discord
+    </a>
     
+    <!-- ปุ่มออกจากระบบ -->
     <button onclick="handleLogout()" style="background: transparent; color: #aaa; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">ออกจากระบบ</button>
-	</div>
+</div>
 
     <div id="mainApp" style="display: none;">
         
@@ -1065,6 +1120,9 @@
 <script>
     let currentUser = null;
 
+// 🌐 ประกาศลิงก์ Web App ไว้ที่นี่ที่เดียวจบ
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec";
+
 async function handleLogin() {
     const u = document.getElementById('loginUser').value.trim();
     const p = document.getElementById('loginPass').value.trim();
@@ -1074,7 +1132,6 @@ async function handleLogin() {
         return;
     }
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec"; 
     const url = `${WEB_APP_URL}?action=checkLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`;
 
     try {
@@ -1208,11 +1265,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (userElem) userElem.innerText = username;
 
         const expireElem = document.getElementById('currentExpireDate');
-if (expireElem) {
-    const rawDate = currentUser.expireDate || "-";
-    const remainingText = getDaysRemaining(rawDate);
-    expireElem.innerText = rawDate + remainingText;
-}
+        if (expireElem) {
+            const rawDate = currentUser.expireDate || "-";
+            const remainingText = getDaysRemaining(rawDate);
+            expireElem.innerText = rawDate + remainingText;
+        }
 
         const badge = document.getElementById('currentRoleBadge');
         if (badge && role) {
@@ -1242,6 +1299,53 @@ if (expireElem) {
     }
 });
 
+function showRegisterScreen() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('registerScreen').style.display = 'block';
+    document.getElementById('registerMessage').innerText = '';
+    document.getElementById('regUser').value = '';
+    document.getElementById('regPass').value = '';
+}
+
+function showLoginScreen() {
+    document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+}
+
+function handleRegister() {
+    const user = document.getElementById('regUser').value.trim();
+    const pass = document.getElementById('regPass').value.trim();
+    const msgElem = document.getElementById('registerMessage');
+
+    if (!user || !pass) {
+        msgElem.style.color = '#ff4d4d';
+        msgElem.innerText = 'กรุณากรอก Username และ Password ให้ครบถ้วน';
+        return;
+    }
+
+    msgElem.style.color = '#ffc107';
+    msgElem.innerText = 'กำลังบันทึกข้อมูล...';
+
+    fetch(`${WEB_APP_URL}?action=register&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                msgElem.style.color = '#28a745';
+                msgElem.innerText = data.message;
+                setTimeout(() => {
+                    showLoginScreen();
+                }, 1500);
+            } else {
+                msgElem.style.color = '#ff4d4d';
+                msgElem.innerText = data.message;
+            }
+        })
+        .catch(error => {
+            msgElem.style.color = '#ff4d4d';
+            msgElem.innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์';
+        });
+}
+
 async function handleFirstTimeRedeem() {
     const keyInput = document.getElementById('firstTimeKeyInput');
     if (!keyInput) {
@@ -1261,7 +1365,6 @@ async function handleFirstTimeRedeem() {
         return;
     }
 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec"; 
     const url = `${WEB_APP_URL}?action=redeemKey&user=${encodeURIComponent(currentUser.username)}&key=${encodeURIComponent(key)}`;
 
     try {
@@ -1290,17 +1393,15 @@ async function handleFirstTimeRedeem() {
     }
 }
 
-	function getDaysRemaining(expireDateStr) {
+function getDaysRemaining(expireDateStr) {
     if (!expireDateStr || expireDateStr === "-" || expireDateStr === "") return "";
     
-    // แปลงรูปแบบวันที่จาก "dd/MM/yyyy" เป็น Date object ของ JS
     const parts = expireDateStr.split('/');
     if (parts.length !== 3) return "";
     
     const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
     const today = new Date();
     
-    // ตั้งค่าเวลาให้เป็น 00:00:00 เหมือนกัน เพื่อคำนวณวันให้แม่นยำ
     expDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     
