@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROOC Guild Loot System - White & Blue Edition</title>
+    <title>🏰 Guild Loot System</title>
 <style>
+    /* ==========================================
+       1. CSS Variables & Theme Settings
+       ========================================== */
     :root {
         --bg-color: #0b0f19;
         --panel-bg: #151b2b;
-        --panel-border: #4a5b7c;
-        /* ปรับโทนสีหลักเป็นฟ้าอ่อนไล่ระดับ */
+        --panel-border: --panel-border;
         --gold-accent: #00d2ff;
         --gold-light: #70f7ff;
         --primary-blue: #00a8ff;
@@ -24,6 +26,9 @@
         --btn-grey: #7f8c8d;
     }
 
+    /* ==========================================
+       2. Global & Reset Styles
+       ========================================== */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: var(--text-color);
@@ -42,14 +47,23 @@
         text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     }
 
-    /* คีย์เฟรมสำหรับแอนิเมชันสีเคลื่อนไหว */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* ==========================================
+       3. Keyframes & Animations
+       ========================================== */
     @keyframes rainbowAnimation {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
 
-    /* ขอบแบบเส้นคู่ สีสายรุ้ง สำหรับหน้าต่าง Login และ Panel สำคัญ (เคลื่อนไหวได้) */
+    /* ==========================================
+       4. Layout & Containers (Login, Panel, Grid)
+       ========================================== */
     #loginScreen, .panel {
         background: var(--panel-bg);
         border: 6px double transparent;
@@ -89,6 +103,28 @@
         box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
     }
 
+    /* Grids */
+    .item-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+    }
+
+    .party-grid-4col {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+    }
+
+    .gen-card-grid-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    /* ==========================================
+       5. Navigation & Tabs
+       ========================================== */
     .nav-tabs {
         display: flex;
         gap: 10px;
@@ -110,7 +146,6 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    /* ⬇️ เอฟเฟกต์สีเคลื่อนไหวเมื่อเอาเมาส์ชี้ Tab Button ⬇️ */
     .tab-btn:hover {
         background: linear-gradient(270deg, #00d2ff, #0077b6, #70f7ff, #00d2ff);
         background-size: 300% 300%;
@@ -130,6 +165,28 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
+    /* Mobile Menu Toggle Button */
+    .mobile-menu-toggle {
+        display: none;
+        background: var(--light-blue);
+        color: var(--gold-light);
+        border: 1px solid var(--panel-border);
+        padding: 10px 15px;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 10px;
+    }
+
+    .mobile-menu-wrapper {
+        display: none;
+    }
+
+    /* ==========================================
+       6. Form Elements & Buttons
+       ========================================== */
     .form-group {
         margin-bottom: 15px;
         display: flex;
@@ -146,6 +203,7 @@
         width: 100%;
         box-sizing: border-box;
     }
+
     input:focus, select:focus {
         border-color: var(--gold-accent);
         outline: none;
@@ -162,7 +220,6 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    /* ⬇️ เอฟเฟกต์สีเคลื่อนไหวเมื่อเอาเมาส์ชี้ปุ่มทั่วไป (ทุกปุ่ม) ⬇️ */
     button:hover {
         background: linear-gradient(270deg, #ff007f, #7f00ff, #00d2ff, #ff007f);
         background-size: 300% 300%;
@@ -172,8 +229,10 @@
         box-shadow: 0 0 12px rgba(0, 210, 255, 0.8);
         border-color: var(--gold-light);
     }
+
     button:active { transform: translateY(0); }
 
+    /* Button Color Classes */
     .btn-green { background: var(--btn-green); }
     .btn-red { background: var(--btn-red); }
     .btn-orange { background: var(--btn-orange); }
@@ -181,6 +240,9 @@
     .btn-purple { background: var(--btn-purple); }
     .btn-grey { background: var(--btn-grey); }
 
+    /* ==========================================
+       7. Tables & Responsive Wrappers
+       ========================================== */
     .table-responsive {
         width: 100%;
         overflow-x: auto;
@@ -206,33 +268,9 @@
     th { background: var(--light-blue); color: var(--gold-light); }
     tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
-    .item-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 15px;
-    }
-
-    .party-grid-4col {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 15px;
-    }
-
-    .gen-card-grid-3col {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-    }
-
-    @media (max-width: 1200px) {
-        .party-grid-4col { grid-template-columns: repeat(2, 1fr); }
-        .gen-card-grid-3col { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 768px) {
-        .party-grid-4col { grid-template-columns: 1fr; }
-        .gen-card-grid-3col { grid-template-columns: 1fr; }
-    }
-
+    /* ==========================================
+       8. Badges, Cards & Components
+       ========================================== */
     .badge {
         background: var(--primary-blue);
         color: #ffffff;
@@ -243,39 +281,11 @@
         border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .badge-pending {
-        background: #c0392b;
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-    }
+    .badge-pending { background: #c0392b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .badge-skip { background: #d35400; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    .badge-skipped-history { background: #8e44ad; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 
-    .badge-skip {
-        background: #d35400;
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-    }
-
-    .badge-skipped-history {
-        background: #8e44ad;
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-    }
-
-    .role-badge {
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: bold;
-    }
+    .role-badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
     .role-admin { background: #c0392b; color: white; }
     .role-staff { background: #00a8ff; color: white; }
 
@@ -391,6 +401,7 @@
         border-radius: 4px;
     }
 
+    /* Modal Styles */
     .modal {
         display: none; 
         position: fixed; 
@@ -512,6 +523,7 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.6);
     }
 
+    /* Party Cards */
     .party-card {
         background: var(--panel-bg);
         border: 2px solid var(--panel-border);
@@ -556,6 +568,56 @@
         padding: 4px;
         background: #0f141f;
     }
+
+    /* ==========================================
+       9. Responsive Media Queries (Mobile & Tablet)
+       ========================================== */
+    @media (max-width: 1200px) {
+        .party-grid-4col { grid-template-columns: repeat(2, 1fr); }
+        .gen-card-grid-3col { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+        input, select, button {
+            font-size: 16px !important;
+            padding: 10px 14px;
+        }
+        .user-bar, .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .party-grid-4col { grid-template-columns: 1fr; }
+        .gen-card-grid-3col { grid-template-columns: 1fr; }
+
+        /* Mobile Menu Control */
+        .pc-menu {
+            display: none !important;
+        }
+        .mobile-menu-wrapper {
+            display: block !important;
+        }
+        .mobile-menu-toggle {
+            display: block;
+        }
+        .nav-tabs {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .nav-tabs.show {
+            display: flex;
+        }
+        .tab-btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 </head>
 <body>
@@ -575,8 +637,8 @@
 		<button onclick="showRegisterScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px; margin-top: 10px;">ยังไม่มีบัญชี? สมัครสมาชิกที่นี่</button>
     </div>
 	
-<!-- 📝 หน้าจอสมัครสมาชิก (เพิ่มคลาส panel เพื่อให้มีกรอบสีรุ้งเคลื่อนไหว) -->
-<div id="registerScreen" class="panel" style="display: none; max-width: 400px; margin: 50px auto; text-align: center; box-sizing: border-box;">
+	<!-- 📝 หน้าจอสมัครสมาชิก (เพิ่มคลาส panel เพื่อให้มีกรอบสีรุ้งเคลื่อนไหว) -->
+	<div id="registerScreen" class="panel" style="display: none; max-width: 400px; margin: 50px auto; text-align: center; box-sizing: border-box;">
     <h2>📝 สมัครสมาชิกใหม่</h2>
     <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">สร้างบัญชีผู้ใช้ใหม่สำหรับเข้าสู่ระบบ</p>
     <p id="registerMessage" style="color: #ffc107; margin: 10px 0; font-size: 14px;"></p>
@@ -594,10 +656,10 @@
     <button class="btn-blue" onclick="handleRegister()" style="width: 100%; margin-bottom: 10px;">ยืนยันการสมัคร</button>
     
     <button onclick="showLoginScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">กลับไปหน้าเข้าสู่ระบบ</button>
-</div>
+	</div>
 
-<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (มีกรอบสีรุ้งเคลื่อนไหว) -->
-<div id="redeemOnlyScreen" class="panel" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px;">
+	<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key ก่อน (มีกรอบสีรุ้งเคลื่อนไหว) -->
+	<div id="redeemOnlyScreen" class="panel" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px;">
     <h2 style="margin-top: 0; color: #ffffff;">🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
     <p id="redeemNoticeMessage" style="color: #ffc107; margin: 15px 0; font-size: 14px;"></p>
     
@@ -643,11 +705,11 @@
     
     <!-- ปุ่มออกจากระบบ -->
     <button onclick="handleLogout()" style="background: transparent; color: #aaa; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">ออกจากระบบ</button>
-</div>
+	</div>
 
     <div id="mainApp" style="display: none;">
         
-<div class="user-bar">
+	<div class="user-bar">
     <div>
         👤 ผู้ใช้งาน: <strong id="currentUsername"></strong> 
         <span id="currentRoleBadge" class="role-badge"></span>
@@ -659,20 +721,41 @@
     <div>
         <button class="btn-red" onclick="handleLogout()">ออกจากระบบ</button>
     </div>
-</div>
+	</div>
 
         <h1>🏰 ระบบจัดคิวแจกไอเทมกิลด์ (ROOC Theme)</h1>
 
-        <div class="nav-tabs">
-            <button class="tab-btn active" id="tabBtn-dashboard" onclick="switchTab('dashboard')">📊 สรุปประวัติการแจกไอเทม</button>
-            <button class="tab-btn" id="tabBtn-queue" onclick="switchTab('queueView')">📋 ลำดับคิวปัจจุบัน</button>
-            <button class="tab-btn" id="tabBtn-generate" onclick="switchTab('generateView')">⚡ หน้า Generate คิวและแจกไอเทม</button>
-            <button class="tab-btn" id="tabBtn-party" onclick="switchTab('partyView')">⚔️ ระบบจัดปาร์ตี้กิลด์</button>
-            <button class="tab-btn admin-only" id="tabBtn-items" onclick="switchTab('items')">⚙️ ตั้งค่าไอเทมทั้งหมด</button>
-            <button class="tab-btn admin-only" id="tabBtn-jobs" onclick="switchTab('jobs')">⚔️ ตั้งค่าอาชีพ</button>
-            <button class="tab-btn admin-only" id="tabBtn-members" onclick="switchTab('members')">➕ เพิ่มสมาชิกใหม่เข้ากิลด์</button>
-            <button class="tab-btn admin-only" id="tabBtn-adminPanel" onclick="switchTab('adminPanel')" style="background: #e74c3c; color: white; border-color: #c0392b;">🛠️ Admin Control Panel</button>
-        </div>
+	<!-- ================= เมนูสำหรับ PC (ซ่อนบนมือถือ) ================= -->
+	<div class="nav-tabs pc-menu">
+    <button class="tab-btn active" id="tabBtn-dashboard" onclick="switchTab('dashboard')">📊 สรุปประวัติการแจกไอเทม</button>
+    <button class="tab-btn" id="tabBtn-queue" onclick="switchTab('queueView')">📋 ลำดับคิวปัจจุบัน</button>
+    <button class="tab-btn" id="tabBtn-generate" onclick="switchTab('generateView')">⚡ หน้า Generate คิวและแจกไอเทม</button>
+    <button class="tab-btn" id="tabBtn-party" onclick="switchTab('partyView')">⚔️ ระบบจัดปาร์ตี้กิลด์</button>
+    <button class="tab-btn admin-only" id="tabBtn-items" onclick="switchTab('items')">⚙️ ตั้งค่าไอเทมทั้งหมด</button>
+    <button class="tab-btn admin-only" id="tabBtn-jobs" onclick="switchTab('jobs')">⚔️ ตั้งค่าอาชีพ</button>
+    <button class="tab-btn admin-only" id="tabBtn-members" onclick="switchTab('members')">➕ เพิ่มสมาชิกใหม่เข้ากิลด์</button>
+    <button class="tab-btn admin-only" id="tabBtn-adminPanel" onclick="switchTab('adminPanel')" style="background: #e74c3c; color: white; border-color: #c0392b;">🛠️ Admin Control Panel</button>
+	</div>
+
+	<!-- ================= เมนูสำหรับ มือถือ (ซ่อนบน PC) ================= -->
+	<div class="mobile-menu-wrapper">
+    <!-- ปุ่มสำหรับกดเปิด-ปิดเมนูบนมือถือ -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        ≡ เมนูการใช้งาน
+    </button>
+
+    <!-- กล่องเมนูมือถือ (ดึงปุ่มชุดเดียวกันมาใส่) -->
+    <div class="nav-tabs" id="navTabsContainer">
+        <button class="tab-btn active" onclick="switchTab('dashboard'); toggleMobileMenu();">📊 สรุปประวัติการแจกไอเทม</button>
+        <button class="tab-btn" onclick="switchTab('queueView'); toggleMobileMenu();">📋 ลำดับคิวปัจจุบัน</button>
+        <button class="tab-btn" onclick="switchTab('generateView'); toggleMobileMenu();">⚡ หน้า Generate คิวและแจกไอเทม</button>
+        <button class="tab-btn" onclick="switchTab('partyView'); toggleMobileMenu();">⚔️ ระบบจัดปาร์ตี้กิลด์</button>
+        <button class="tab-btn admin-only" onclick="switchTab('items'); toggleMobileMenu();">⚙️ ตั้งค่าไอเทมทั้งหมด</button>
+        <button class="tab-btn admin-only" onclick="switchTab('jobs'); toggleMobileMenu();">⚔️ ตั้งค่าอาชีพ</button>
+        <button class="tab-btn admin-only" onclick="switchTab('members'); toggleMobileMenu();">➕ เพิ่มสมาชิกใหม่เข้ากิลด์</button>
+        <button class="tab-btn admin-only" onclick="switchTab('adminPanel'); toggleMobileMenu();" style="background: #e74c3c; color: white; border-color: #c0392b;">🛠️ Admin Control Panel</button>
+    </div>
+	</div>
 
         <!-- 1. สรุปประวัติการแจกไอเทม -->
         <div id="dashboard" class="tab-content active">
@@ -3529,6 +3612,11 @@ function getDaysRemaining(expireDateStr) {
         localStorage.clear();
         location.reload();
     }
+	
+	function toggleMobileMenu() {
+    const navTabs = document.getElementById('navTabsContainer');
+    navTabs.classList.toggle('show');
+}
 </script>
 </body>
 </html>
