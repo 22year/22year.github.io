@@ -1123,6 +1123,31 @@
 // 🌐 ประกาศลิงก์ Web App ไว้ที่นี่ที่เดียวจบ
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwR3dVfzBvRGRMkhXOjv11Tg6Q9nwPx3ni8AJ7ocLsWhO9R6zIohEfTsyTSUmIKGlvC/exec";
 
+// ฟังก์ชันคำนวณวันคงเหลือ
+function getDaysRemaining(expireDateStr) {
+    if (!expireDateStr || expireDateStr === "-" || expireDateStr === "") return "";
+    
+    const parts = expireDateStr.split('/');
+    if (parts.length !== 3) return "";
+    
+    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+    const today = new Date();
+    
+    expDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = expDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 0) {
+        return ` (อีก ${diffDays} วัน)`;
+    } else if (diffDays === 0) {
+        return ` (หมดอายุวันนี้)`;
+    } else {
+        return ` (หมดอายุแล้ว)`;
+    }
+}
+
 async function handleLogin() {
     const u = document.getElementById('loginUser').value.trim();
     const p = document.getElementById('loginPass').value.trim();
@@ -1154,6 +1179,37 @@ async function handleLogin() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
 
+            // 🟢 อัปเดตข้อมูล UI ทันทีเมื่อล็อกอินสำเร็จ
+            document.getElementById('currentUsername').innerText = currentUser.username;
+            
+            const expireElem = document.getElementById('currentExpireDate');
+            if (expireElem) {
+                const rawDate = currentUser.expireDate || "-";
+                const remainingText = getDaysRemaining(rawDate);
+                expireElem.innerText = rawDate + remainingText;
+            }
+
+            const badge = document.getElementById('currentRoleBadge');
+            if (badge) {
+                badge.innerText = currentUser.role.toUpperCase();
+                badge.className = `role-badge role-${currentUser.role}`;
+            }
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
+            });
+
+            ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
+                const inputEl = document.getElementById(`webhookUrl_${room}`);
+                if (inputEl) {
+                    inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
+                }
+            });
+
+            if (typeof initApp === 'function') {
+                initApp();
+            }
+
         } else if (result.status === "pending_redeem" || result.status === "expired") {
             currentUser = { username: u, role: result.role, expireDate: '-' };
             localStorage.setItem("ro_logged_in", "true");
@@ -1176,37 +1232,6 @@ async function handleLogin() {
         console.error(err);
         alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ระบบ');
         return;
-    }
-
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
-    
-    document.getElementById('currentUsername').innerText = currentUser.username;
-    
-    const expireElem = document.getElementById('currentExpireDate');
-    if (expireElem) {
-        expireElem.innerText = currentUser.expireDate;
-    }
-
-    const badge = document.getElementById('currentRoleBadge');
-    if (badge) {
-        badge.innerText = currentUser.role.toUpperCase();
-        badge.className = `role-badge role-${currentUser.role}`;
-    }
-
-    document.querySelectorAll('.admin-only').forEach(el => {
-        el.style.display = currentUser.role === 'admin' ? 'inline-block' : 'none';
-    });
-
-    ['dashboard', 'queue', 'generate', 'party'].forEach(room => {
-        const inputEl = document.getElementById(`webhookUrl_${room}`);
-        if (inputEl) {
-            inputEl.value = localStorage.getItem(`ro_webhook_${room}`) || '';
-        }
-    });
-
-    if (typeof initApp === 'function') {
-        initApp();
     }
 }
 
