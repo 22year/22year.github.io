@@ -596,8 +596,8 @@
     <button onclick="showLoginScreen()" style="background: transparent; color: #4e9af1; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">กลับไปหน้าเข้าสู่ระบบ</button>
 </div>
 
-<!-- 🎁 หน้าจอสำหรับ User ใหม่ที่ต้องเติม Key หรือเติมเงิน TrueMoney (มีกรอบสีรุ้งเคลื่อนไหว) -->
-<div id="redeemOnlyScreen" class="panel" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px;">
+<!-- 🎁 หน้าจอสำหรับ User ใหม่ (มีกรอบสีรุ้งเคลื่อนไหว) -->
+<div id="redeemOnlyScreen" class="rainbow-box" style="display: none; max-width: 420px; margin: 50px auto; text-align: center; box-sizing: border-box; padding: 25px; background: #111; color: #fff; border-radius: 12px;">
     <h2 style="margin-top: 0; color: #ffffff;">🎁 เปิดใช้งานบัญชี / เติม Air Time</h2>
     <p id="redeemNoticeMessage" style="color: #ffc107; margin: 15px 0; font-size: 14px;"></p>
     
@@ -605,65 +605,37 @@
         <span style="font-size: 14px; color: #aaa;">บัญชีผู้ใช้: <strong id="pendingUsername" style="color: #fff;"></strong></span>
     </div>
 
-    <!-- 📦 ตารางแสดงเรทราคาและแพ็กเกจ -->
+    <!-- 📦 ตารางเรทราคา -->
     <div style="margin-bottom: 20px; text-align: left; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;">
         <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #f0ad4e; text-align: center;">📋 รายการแพ็กเกจ Air Time</div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;">
-            <span>⏱️ 30 วัน (รายเดือน)</span>
-            <span><strong style="color: #fff;">100 บ.</strong></span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;">
-            <span>⏱️ 180 วัน (คุ้มสุด)</span>
-            <span><s style="color: #777;">600.-</s> <strong style="color: #ffc107;">540 บ.</strong></span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px;">
-            <span>⏱️ 365 วัน (VIP ปี)</span>
-            <span><s style="color: #777;">1,200.-</s> <strong style="color: #28a745;">960 บ.</strong></span>
-        </div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;"><span>⏱️ 30 วัน</span> <span><strong style="color: #fff;">100 บ.</strong></span></div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #2c2c2c; font-size: 13px;"><span>⏱️ 180 วัน</span> <span><strong style="color: #ffc107;">540 บ.</strong></span></div>
+        <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px;"><span>⏱️ 365 วัน</span> <span><strong style="color: #28a745;">960 บ.</strong></span></div>
     </div>
 
-    <!-- 🔑 ช่องเติมด้วย Serial Key -->
+    <!-- 🔑 เติมด้วย Key -->
     <div class="form-group" style="text-align: left; margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-size: 13px; color: #ccc;">Serial Key:</label>
-        <input type="text" id="firstTimeKeyInput" placeholder="กรอก Serial Key ที่นี่..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
+        <label style="display: block; font-size: 13px; color: #ccc;">Serial Key:</label>
+        <input type="text" id="firstTimeKeyInput" placeholder="กรอก Key..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
     </div>
-    
-    <button onclick="handleFirstTimeRedeem()" class="btn-green" style="display: block; width: 100%; padding: 10px; background-color: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#218838'" onmouseout="this.style.backgroundColor='#28a745'">เปิดใช้งานระบบด้วย Key</button>
+    <button onclick="handleFirstTimeRedeem()" style="width: 100%; padding: 10px; background: #28a745; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">เปิดใช้งานด้วย Key</button>
 
-    <!-- 🧧 เส้นแบ่งสัดส่วนระหว่าง Serial Key กับ TrueMoney -->
-    <div style="display: flex; align-items: center; text-align: center; color: #666; margin: 20px 0; font-size: 12px;">
-        <div style="flex: 1; border-bottom: 1px solid #333;"></div>
-        <span style="padding: 0 10px; color: #888;">หรือเติมเงินอัตโนมัติ</span>
-        <div style="flex: 1; border-bottom: 1px solid #333;"></div>
-    </div>
-
-    <!-- 🧧 ช่องเติม Air Time ด้วยซองของขวัญ TrueMoney -->
-    <div style="margin-bottom: 20px; text-align: left; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333;">
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #ff6600; text-align: center;">🧧 ซองของขวัญ TrueMoney (TrueWallet)</div>
-        
+    <!-- 🧾 เติมด้วย Slip -->
+    <div style="margin: 20px 0; border-top: 1px solid #333; padding-top: 20px; text-align: left;">
+        <div style="font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #007bff; text-align: center;">🧾 เติมเงินด้วยสลิปโอนเงิน</div>
         <div class="form-group" style="margin-bottom: 10px;">
-            <label style="display: block; margin-bottom: 5px; font-size: 12px; color: #ccc;">ลิงก์ซองของขวัญ:</label>
-            <input type="text" id="giftLinkInput" placeholder="https://gift.truemoney.com/campaign/?v=..." style="width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box; font-size: 12px;">
+            <label style="font-size: 12px; color: #ccc;">เลขอ้างอิงสลิป (TransRef):</label>
+            <input type="text" id="slipRefInput" placeholder="เลข TransRef..." style="width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
         </div>
-        
-        <button onclick="handleTrueMoneyRedeem()" style="display: block; width: 100%; padding: 9px; background-color: #ff6600; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; box-sizing: border-box; text-align: center; transition: background 0.3s;" onmouseover="this.style.backgroundColor='#e05b00'" onmouseout="this.style.backgroundColor='#ff6600'">
-            🎁 ยืนยันการเติมเงินซองของขวัญ
-        </button>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label style="font-size: 12px; color: #ccc;">ยอดเงิน (Amount):</label>
+            <input type="number" id="slipAmountInput" placeholder="เช่น 100" style="width: 100%; padding: 9px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box;">
+        </div>
+        <button onclick="handleSlipRedeem()" style="width: 100%; padding: 9px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">ยืนยันการเติมด้วยสลิป</button>
     </div>
 
-    <!-- 🎮 ปุ่มติดต่อซื้อผ่าน Discord -->
-    <a href="https://discord.com/users/274781178706264065" target="_blank" 
-       onmouseover="this.style.backgroundColor='#4752C4'" 
-       onmouseout="this.style.backgroundColor='#5865F2'"
-       style="display: block; width: 100%; padding: 10px; background-color: #5865F2; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: center; transition: background 0.3s;">
-        🎮 ติดต่อซื้อผ่าน Discord
-    </a>
-    
-    <!-- ปุ่มออกจากระบบ -->
-    <button onclick="handleLogout()" style="background: transparent; color: #aaa; border: none; cursor: pointer; text-decoration: underline; font-size: 13px;">ออกจากระบบ</button>
+    <a href="https://discord.com/users/274781178706264065" target="_blank" style="display: block; width: 100%; padding: 10px; background: #5865F2; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 15px;">🎮 ติดต่อซื้อผ่าน Discord</a>
+    <button onclick="handleLogout()" style="background: none; color: #aaa; border: none; text-decoration: underline; cursor: pointer; font-size: 13px;">ออกจากระบบ</button>
 </div>
 
     <div id="mainApp" style="display: none;">
@@ -1439,54 +1411,6 @@ async function handleFirstTimeRedeem() {
     }
 }
 
-async function handleTrueMoneyRedeem() {
-    const giftLink = document.getElementById('giftLinkInput').value.trim();
-    const username = currentUser.username || localStorage.getItem("ro_username");
-
-    if (!giftLink) {
-        alert('กรุณากรอกลิงก์ซองของขวัญ TrueMoney!');
-        return;
-    }
-
-    if (!giftLink.includes('truemoney.com')) {
-        alert('รูปแบบลิงก์ซองของขวัญไม่ถูกต้อง!');
-        return;
-    }
-
-    if (!confirm('ยืนยันการใช้ซองของขวัญนี้เพื่อเติม Air Time?')) {
-        return;
-    }
-
-    try {
-        // แสดงสถานะกำลังโหลด (ถ้ามี)
-        alert('กำลังตรวจสอบซองของขวัญ กรุณารอสักครู่...');
-
-        const url = `${WEB_APP_URL}?action=redeemTrueWallet&user=${encodeURIComponent(username)}&link=${encodeURIComponent(giftLink)}`;
-
-        const response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'omit',
-            redirect: 'follow'
-        });
-        
-        const result = await response.json();
-
-        if (result.status === "success") {
-            alert(result.message || 'เติมเงินสำเร็จ! เพิ่ม Air Time เรียบร้อยแล้ว');
-            // รีเฟรชหน้าเว็บหรืออัปเดตข้อมูลวันหมดอายุใหม่
-            localStorage.setItem("ro_expire_date", result.newExpireDate);
-            location.reload(); 
-        } else {
-            alert('เติมเงินไม่สำเร็จ: ' + (result.message || 'ซองอาจจะถูกใช้ไปแล้ว หรือยอดเงินไม่ตรง'));
-        }
-
-    } catch (err) {
-        console.error(err);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
-    }
-}
-
 function getDaysRemaining(expireDateStr) {
     if (!expireDateStr || expireDateStr === "-" || expireDateStr === "") return "";
     
@@ -1545,6 +1469,37 @@ function getDaysRemaining(expireDateStr) {
             return false;
         }
     }
+	
+	
+	async function handleSlipRedeem() {
+    let user = document.getElementById('pendingUsername').innerText;
+    let transRef = document.getElementById('slipRefInput').value.trim();
+    let amount = document.getElementById('slipAmountInput').value.trim();
+
+    if (!transRef || !amount) {
+        Swal.fire('แจ้งเตือน', 'กรุณากรอกเลขอ้างอิงและยอดเงินให้ครบ', 'warning');
+        return;
+    }
+
+    Swal.showLoading();
+    try {
+        // แก้ไขตรงนี้: เปลี่ยน SCRIPT_URL เป็น WEB_APP_URL ให้ตรงกับด้านบน
+        let res = await fetch(`${WEB_APP_URL}?action=verifySlip&user=${encodeURIComponent(user)}&transRef=${encodeURIComponent(transRef)}&amount=${encodeURIComponent(amount)}`);
+        
+        let data = await res.json();
+
+        if (data.status === "success") {
+            Swal.fire('สำเร็จ', data.message, 'success').then(() => {
+                location.reload(); 
+            });
+        } else {
+            Swal.fire('ผิดพลาด', data.message, 'error');
+        }
+    } catch (err) {
+        console.error(err); // ดูรายละเอียด error ใน Console
+        Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+    }
+}
 
 	async function sendRoomWebhook(room) {
         // ฟังก์ชันช่วยตัดข้อความไม่ให้เกิน 2000 ตัวอักษรต่อ 1 Request ของ Discord
