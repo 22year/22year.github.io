@@ -1560,16 +1560,15 @@ function getDaysRemaining(expireDateStr) {
         }
     }
 
-	async function sendRoomWebhook(room) {
+async function sendRoomWebhook(room) {
         // ฟังก์ชันช่วยตัดข้อความไม่ให้เกิน 2000 ตัวอักษรต่อ 1 Request ของ Discord
         async function sendLongMessage(channelType, fullText) {
-            const MAX_LENGTH = 1900; // เผื่อพื้นที่ไว้เล็กน้อย
+            const MAX_LENGTH = 1900; 
             if (fullText.length <= MAX_LENGTH) {
                 await sendDiscordWebhookNotification(channelType, fullText);
                 return;
             }
 
-            // ตัดแบ่งตามบรรทัดเพื่อไม่ให้ข้อความขาดกลางคำหรือพังบรรทัด
             let lines = fullText.split('\n');
             let currentChunk = '';
 
@@ -1577,7 +1576,6 @@ function getDaysRemaining(expireDateStr) {
                 if ((currentChunk + line + '\n').length > MAX_LENGTH) {
                     await sendDiscordWebhookNotification(channelType, currentChunk);
                     currentChunk = line + '\n';
-                    // หน่วงเวลาเล็กน้อย 500ms ป้องกัน Discord บล็อกเรื่อง Rate Limit (HTTP 429)
                     await new Promise(resolve => setTimeout(resolve, 500));
                 } else {
                     currentChunk += line + '\n';
@@ -1603,16 +1601,15 @@ function getDaysRemaining(expireDateStr) {
                     if (itemLogs.length > 0) {
                         text += `📦 **${item.name}**:\n`;
                         itemLogs.forEach((l, idx) => {
-                            text += `  ${idx + 1}. ${l.memberName} (${l.jobName}) - รับ ${l.giveCount} ชิ้น | 📍 ${l.slotStr}\n`;
+                            text += `${idx + 1}. **${l.memberName}**\n\`\`\`diff\n- รับ ${l.giveCount} ชิ้น | 📍 ${l.slotStr}\n\`\`\`\n`;
                         });
                     }
                 });
             }
             text += `========================================`;
             await sendLongMessage('dashboard', text);
-			
 
-			} else if (room === 'queue') {
+        } else if (room === 'queue') {
             const selectEl = document.getElementById('queueSelectItemId');
             if (!selectEl || selectEl.options.length === 0) return alert('กรุณาเลือกไอเทมก่อนส่ง Webhook คิว!');
             const itemId = parseInt(selectEl.value);
@@ -1626,11 +1623,7 @@ function getDaysRemaining(expireDateStr) {
             
             displayList.forEach((entry, idx) => {
                 const member = members.find(m => m.id === entry.memberId);
-                const job = jobs.find(j => j.id === member.jobId) || { name: '' };
-                
-                text += `${idx + 1}. **${member.name}** (${job.name}) - รับแล้ว ${entry.received} ชิ้น\n`;
-
-                // แสดงจำนวนค้างรับ (สีแดง)
+                text += `${idx + 1}. **${member.name}** รับแล้ว ${entry.received} ชิ้น\n`;
                 if (entry.pending > 0) {
                     text += "```diff\n";
                     text += `- ค้างรับ: ${entry.pending} ชิ้น\n`;
@@ -1639,8 +1632,6 @@ function getDaysRemaining(expireDateStr) {
             });
             text += `----------------------------------------`;
             await sendLongMessage('queue', text);
-                      
-        
 
         } else if (room === 'generate') {
             const activeItemIds = Object.keys(calculatedMultiResults);
@@ -1655,9 +1646,8 @@ function getDaysRemaining(expireDateStr) {
                 text += `📦 **${item.name}** (${recipients.length} คน):\n`;
                 recipients.forEach((rec, idx) => {
                     const member = members.find(m => m.id === rec.memberId);
-                    const job = jobs.find(j => j.id === member.jobId) || { name: '' };
                     let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-                    text += `  ${idx + 1}. **${member.name}** (${job.name}) - รับ ${rec.giveCount} ชิ้น | 📍 ${slotStr}\n`;
+                    text += `${idx + 1}. **${member.name}**\n\`\`\`diff\n- รับ ${rec.giveCount} ชิ้น | 📍 ${slotStr}\n\`\`\`\n`;
                 });
                 text += `----------------------------------------\n`;
             });
@@ -1674,9 +1664,8 @@ function getDaysRemaining(expireDateStr) {
                 } else {
                     p.memberIds.forEach((mId, idx) => {
                         const m = members.find(x => x.id === mId);
-                        const j = m ? jobs.find(x => x.id === m.jobId) : { name: '' };
                         if (m) {
-                            text += `  ${idx + 1}. ${m.name} (${j.name}) - ${m.discordId || '-'}\n`;
+                            text += `  ${idx + 1}. ${m.name} - ${m.discordId || '-'}\n`;
                         }
                     });
                 }
@@ -1989,20 +1978,23 @@ function getDaysRemaining(expireDateStr) {
         container.appendChild(gridWrapper);
     }
 
-    async function sendSingleDiscordWebhook(itemId) {
+	async function sendSingleDiscordWebhook(itemId) {
         const item = items.find(i => i.id === itemId);
         const recipients = calculatedMultiResults[itemId];
         if (!recipients || recipients.length === 0) return alert('ไม่มีข้อมูลผู้รับสำหรับไอเทมนี้!');
 
-        let header = `📦 **[ROOC GUILD] แจ้งเตือนคิวแจก ${item.name}**\n----------------------------------------\n`;
+        let header = `📦 **[ROOC GUILD] แจ้งเตือนคิวแจก ${item.name}**\n`;
+        header += `👥 **รวมผู้ได้รับคิว:** ${recipients.length} คน\n`;
+        header += `----------------------------------------\n`;
+        
         let footer = `----------------------------------------`;
 
         let lines = [];
         recipients.forEach((rec, idx) => {
             const member = members.find(m => m.id === rec.memberId);
-            const job = jobs.find(j => j.id === member.jobId) || { name: '' };
             let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-            lines.push(`${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น** | 📍 ${slotStr}`);
+            let detailsBlock = `\`\`\`diff\n- รับ ${rec.giveCount} ชิ้น | 📍 คลัง: ${slotStr}\n\`\`\``;
+            lines.push(`${idx + 1}. **${member.name}**\n${detailsBlock}`);
         });
 
         const MAX_LENGTH = 1900;
@@ -2010,16 +2002,18 @@ function getDaysRemaining(expireDateStr) {
         let chunks = [];
 
         for (let line of lines) {
+            // เช็คว่าถ้าใส่ line นี้เข้าไปแล้วเกินไหม
             if ((currentChunk + line + "\n").length > MAX_LENGTH) {
-                currentChunk += `---------------------------------------- (มีต่อ)`;
+                // เก็บ chunk ปัจจุบัน
                 chunks.push(currentChunk);
-                currentChunk = `📦 **[ROOC GUILD] แจ้งเตือนคิวแจก ${item.name} (ต่อ)**\n----------------------------------------\n` + line + "\n";
+                // เริ่ม chunk ใหม่ โดยไม่มี header ซ้ำ (หรือถ้าอยากให้มีชื่อไอเทมกำกับนิดหน่อย ให้แก้ใน string นี้ได้ครับ)
+                currentChunk = line + "\n";
             } else {
                 currentChunk += line + "\n";
             }
         }
 
-        currentChunk += footer;
+        // เก็บ chunk สุดท้าย
         chunks.push(currentChunk);
 
         for (const chunk of chunks) {
@@ -2829,7 +2823,7 @@ function getDaysRemaining(expireDateStr) {
             const member = members.find(m => m.id === rec.memberId);
             const job = jobs.find(j => j.id === member.jobId) || { name: '' };
             let slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-            text += `${idx + 1}. **${member.name}** (${job.name}) - รับ **${rec.giveCount} ชิ้น**\n   📍 คลัง: ${slotStr}\n`;
+            text += `${idx + 1}. **${member.name}** รับ **${rec.giveCount} ชิ้น**\n   📍 คลัง: ${slotStr}\n`;
         });
         text += `----------------------------------------`;
 
