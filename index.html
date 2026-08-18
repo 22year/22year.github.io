@@ -2696,121 +2696,149 @@ async function sendRoomWebhook(room) {
         calculatedMultiResults[item.id] = recipients;
     }
 
-    function commitDistribution(itemId) {
-        const item = items.find(i => i.id === itemId);
-        if (!item) return alert('ไม่พบข้อมูลไอเทมนี้ในระบบ!');
+function commitDistribution(itemId) {
+    const item = items.find(i => i.id === itemId);
+    if (!item) return alert('ไม่พบข้อมูลไอเทมนี้ในระบบ!');
 
-        const recipients = calculatedMultiResults[itemId];
-        if (!recipients || recipients.length === 0) {
-            return alert('ไม่มีข้อมูลผู้รับที่จะบันทึก!');
-        }
-
-        if (!confirm(`⚠️ ยืนยันการแจก "${item.name}" จำนวน ${recipients.length} คน? (ระบบจะตัดสต็อกและบันทึกประวัติทันที)`)) {
-            return;
-        }
-
-        let totalGivenStock = 0;
-        let lastPage = item.startPage || 1;
-        let lastSlot = item.startSlot || 1;
-
-        const q = queues.find(x => x.itemId === itemId);
-        if (!q || !q.list) return alert('ไม่พบข้อมูลคิวของไอเทมนี้!');
-
-        const todayIso = getTodayISO();
-
-        recipients.forEach(rec => {
-            totalGivenStock += rec.giveCount;
-
-            let entry = q.list.find(x => x.memberId === rec.memberId);
-            if (entry) {
-                entry.received = (entry.received || 0) + rec.giveCount;
-                
-                if (entry.received < item.maxPerPerson && rec.giveCount < rec.needed) {
-                    entry.pending = item.maxPerPerson - entry.received;
-                    entry.pendingDate = todayIso;
-                } else if (rec.giveCount < rec.needed) {
-                    entry.pending = rec.needed - rec.giveCount;
-                    entry.pendingDate = todayIso;
-                } else {
-                    entry.pending = 0;
-                    entry.pendingDate = null;
-                }
-
-                if (entry.isSkipped) {
-                    entry.skipCount = (entry.skipCount || 0) + 1;
-                    entry.skippedDate = todayIso;
-                    entry.isSkipped = false;
-                } else {
-                    entry.skippedDate = null;
-                }
-            }
-
-            const member = members.find(m => m.id === rec.memberId) || { name: 'ไม่ทราบชื่อ', discordId: '-' };
-            const job = jobs.find(j => j.id === member.jobId) || { name: '-' };
-            
-            let slotStr = '';
-            if (rec.slotDetails && rec.slotDetails.length > 0) {
-                slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
-                let lastDetail = rec.slotDetails[rec.slotDetails.length - 1];
-                lastPage = lastDetail.page;
-                lastSlot = lastDetail.slot + 1;
-                
-                if (lastSlot > (item.itemsPerPage || 100)) {
-                    lastPage++;
-                    lastSlot = 1;
-                }
-            }
-
-            dailyLogs.push({
-                id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '_' + Math.random().toString(36).substr(2, 9)),
-                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
-                dateIso: todayIso,
-                itemId: item.id,
-                itemName: item.name,
-                memberName: member.name,
-                jobName: job.name,
-                discordId: member.discordId || '-',
-                giveCount: rec.giveCount,
-                slotStr: slotStr,
-                operator: (currentUser && currentUser.username) ? currentUser.username : 'System'
-            });
-        });
-
-        q.list.forEach(entry => {
-            if (!recipients.some(r => r.memberId === entry.memberId)) {
-                if (entry.isSkipped) {
-                    entry.skipCount = (entry.skipCount || 0) + 1;
-                    entry.skippedDate = todayIso;
-                    entry.isSkipped = false;
-                }
-            }
-        });
-
-        let pendingList = q.list.filter(x => (x.pending || 0) > 0);
-        let skippedList = q.list.filter(x => (x.skippedDate) && !(x.pending > 0));
-        let normalList = q.list.filter(x => !(x.pending > 0) && !x.skippedDate && (x.received < item.maxPerPerson));
-        let completedList = q.list.filter(x => !(x.pending > 0) && !x.skippedDate && (x.received >= item.maxPerPerson));
-
-        q.list = [...pendingList, ...skippedList, ...normalList, ...completedList];
-
-        q.list.forEach((entry, idx) => {
-            entry.order = idx + 1;
-        });
-
-        item.stock = Math.max(0, (item.stock || 0) - totalGivenStock);
-        item.startPage = lastPage;
-        item.startSlot = lastSlot;
-
-        delete calculatedMultiResults[itemId];
-        
-        saveAllData();
-        renderMultiQueueTables();
-        updateQueueView();
-        updateDashboard();
-        renderGenerateMultiSelection();
-
-        alert(`✅ บันทึกการแจก "${item.name}" สำเร็จ! จัดลำดับคิวและตัดสต็อกเรียบร้อยแล้ว`);
+    const recipients = calculatedMultiResults[itemId];
+    if (!recipients || recipients.length === 0) {
+        return alert('ไม่มีข้อมูลผู้รับที่จะบันทึก!');
     }
+
+    if (!confirm(`⚠️ ยืนยันการแจก "${item.name}" จำนวน ${recipients.length} คน? (ระบบจะตัดสต็อกและบันทึกประวัติทันที)`)) {
+        return;
+    }
+
+    let totalGivenStock = 0;
+    let lastPage = item.startPage || 1;
+    let lastSlot = item.startSlot || 1;
+
+    const q = queues.find(x => x.itemId === itemId);
+    if (!q || !q.list) return alert('ไม่พบข้อมูลคิวของไอเทมนี้!');
+
+    const todayIso = getTodayISO();
+    const currentTimestamp = Date.now(); // 👉 เวลาปัจจุบันหน่วยมิลลิวินาทีสำหรับใช้เรียงลำดับ
+
+    recipients.forEach(rec => {
+        totalGivenStock += rec.giveCount;
+
+        let entry = q.list.find(x => x.memberId === rec.memberId);
+        if (entry) {
+            entry.received = (entry.received || 0) + rec.giveCount;
+            
+            // 👉 บันทึกวันที่และเวลาที่กดแจกจริงลงใน entry
+            entry.lastReceivedDate = todayIso;
+            entry.lastTimestamp = currentTimestamp; 
+            
+            if (entry.received < item.maxPerPerson && rec.giveCount < rec.needed) {
+                entry.pending = item.maxPerPerson - entry.received;
+                entry.pendingDate = todayIso;
+            } else if (rec.giveCount < rec.needed) {
+                entry.pending = rec.needed - rec.giveCount;
+                entry.pendingDate = todayIso;
+            } else {
+                entry.pending = 0;
+                entry.pendingDate = null;
+            }
+
+            if (entry.isSkipped) {
+                entry.skipCount = (entry.skipCount || 0) + 1;
+                entry.skippedDate = todayIso;
+                entry.isSkipped = false;
+            } else {
+                entry.skippedDate = null;
+            }
+        }
+
+        const member = members.find(m => m.id === rec.memberId) || { name: 'ไม่ทราบชื่อ', discordId: '-' };
+        const job = jobs.find(j => j.id === member.jobId) || { name: '-' };
+        
+        let slotStr = '';
+        if (rec.slotDetails && rec.slotDetails.length > 0) {
+            slotStr = rec.slotDetails.map(s => `[หน้า ${s.page} ช่อง ${s.slot}]`).join(', ');
+            let lastDetail = rec.slotDetails[rec.slotDetails.length - 1];
+            lastPage = lastDetail.page;
+            lastSlot = lastDetail.slot + 1;
+            
+            if (lastSlot > (item.itemsPerPage || 100)) {
+                lastPage++;
+                lastSlot = 1;
+            }
+        }
+
+        dailyLogs.push({
+            id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '_' + Math.random().toString(36).substr(2, 9)),
+            time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+            dateIso: todayIso,
+            itemId: item.id,
+            itemName: item.name,
+            memberName: member.name,
+            jobName: job.name,
+            discordId: member.discordId || '-',
+            giveCount: rec.giveCount,
+            slotStr: slotStr,
+            operator: (currentUser && currentUser.username) ? currentUser.username : 'System'
+        });
+    });
+
+    q.list.forEach(entry => {
+        if (!recipients.some(r => r.memberId === entry.memberId)) {
+            if (entry.isSkipped) {
+                entry.skipCount = (entry.skipCount || 0) + 1;
+                entry.skippedDate = todayIso;
+                entry.isSkipped = false;
+            }
+        }
+    });
+
+    // 👉 จัดเรียงลำดับใหม่โดยใช้เวลาบันทึก (lastTimestamp) ใครกดทีหลังจะถูกดันไปล่างสุดเสมอ
+    q.list.sort((a, b) => {
+        let priorityA = 4, priorityB = 4;
+        if (a.pending > 0) priorityA = 1;
+        else if (a.skippedDate) priorityA = 2;
+        else if (!a.received || a.received === 0) priorityA = 3;
+
+        if (b.pending > 0) priorityB = 1;
+        else if (b.skippedDate) priorityB = 2;
+        else if (!b.received || b.received === 0) priorityB = 3;
+
+        if (priorityA !== priorityB) return priorityA - priorityB;
+        
+        // เปรียบเทียบด้วยเวลาที่กดแจกจริง
+        let timeA = a.lastTimestamp || 0;
+        let timeB = b.lastTimestamp || 0;
+
+        if (timeA !== timeB) {
+            return timeA - timeB; // เวลาเก่ากว่าอยู่บน เวลาใหม่กว่า (เพิ่งกดแจก) ลงไปล่างสุด
+        }
+        
+        return (a.order || 0) - (b.order || 0);
+    });
+
+    // แยกและรวมกลุ่ม Active กับ Skipped ให้ตรงกัน
+    let activeList = q.list.filter(x => !x.isSkipped);
+    let skippedList = q.list.filter(x => x.isSkipped);
+    q.list = activeList.concat(skippedList);
+
+    // รีเซ็ตเลขลำดับ order ใหม่ตามจริง
+    q.list.forEach((entry, idx) => {
+        entry.order = idx + 1;
+    });
+
+    item.stock = Math.max(0, (item.stock || 0) - totalGivenStock);
+    item.startPage = lastPage;
+    item.startSlot = lastSlot;
+
+    delete calculatedMultiResults[itemId];
+    
+    saveAllData();
+    renderMultiQueueTables();
+    updateQueueView();
+    updateDashboard();
+    renderGenerateMultiSelection();
+
+    alert(`✅ บันทึกการแจก "${item.name}" สำเร็จ! จัดลำดับคิวและตัดสต็อกเรียบร้อยแล้ว`);
+}
 
     function copySingleItemDiscordReport(itemId) {
         const item = items.find(i => i.id === itemId);
@@ -2928,7 +2956,7 @@ async function sendRoomWebhook(room) {
         saveAllData();
     }
 
-    function getDisplayQueueList(qList) {
+function getDisplayQueueList(qList) {
         if (!qList) return [];
         let sorted = [...qList].sort((a, b) => {
             let priorityA = 4, priorityB = 4;
@@ -2941,11 +2969,21 @@ async function sendRoomWebhook(room) {
             else if (!b.received || b.received === 0) priorityB = 3;
 
             if (priorityA !== priorityB) return priorityA - priorityB;
+            
+            // 👉 ใช้เวลาที่บันทึกจริง (lastTimestamp) มาเรียงจากน้อยไปมาก (เก่าอยู่บน ใหม่ลงล่าง)
+            let timeA = a.lastTimestamp || 0;
+            let timeB = b.lastTimestamp || 0;
+
+            if (timeA !== timeB) {
+                return timeA - timeB; 
+            }
+
+            // ถ้าเวลาเท่ากัน ใช้ order ปกติจากน้อยไปมาก (a - b)
             return (a.order || 0) - (b.order || 0);
         });
 
         let activeList = sorted.filter(x => !x.isSkipped);
-        let skippedList = sorted.filter(x => x.isSkipped);
+        let skippedList = sorted.filter(x => !x.isSkipped === false); // หรือ x.isSkipped ตามเดิมของคุณ
         return activeList.concat(skippedList);
     }
 
