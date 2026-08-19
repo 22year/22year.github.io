@@ -6,8 +6,8 @@
     <title>🏰 Guild Loot System</title>
 <style>
     /* ==========================================
-       1. CSS Variables & Theme Settings
-       ========================================== */
+        1. CSS Variables & Theme Settings
+        ========================================== */
     :root {
         --bg-color: #0b0f19;
         --panel-bg: #151b2b;
@@ -27,8 +27,8 @@
     }
 
     /* ==========================================
-       2. Global & Reset Styles
-       ========================================== */
+        2. Global & Reset Styles
+        ========================================== */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: var(--text-color);
@@ -53,8 +53,8 @@
     }
 
     /* ==========================================
-       3. Keyframes & Animations
-       ========================================== */
+        3. Keyframes & Animations
+        ========================================== */
     @keyframes rainbowAnimation {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -62,8 +62,8 @@
     }
 
     /* ==========================================
-       4. Layout & Containers (Login, Panel, Grid)
-       ========================================== */
+        4. Layout & Containers (Login, Panel, Grid)
+        ========================================== */
     #loginScreen, .panel {
         background: var(--panel-bg);
         border: 6px double transparent;
@@ -123,8 +123,8 @@
     }
 
     /* ==========================================
-       5. Navigation & Tabs
-       ========================================== */
+        5. Navigation & Tabs
+        ========================================== */
     .nav-tabs {
         display: flex;
         gap: 10px;
@@ -162,8 +162,13 @@
         box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
     }
 
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* ควบคุมการแสดงผลแท็บหน้าจอ */
+    .tab-content { 
+        display: none; 
+    }
+    .tab-content.active { 
+        display: block !important; 
+    }
 
     /* Mobile Menu Toggle Button */
     .mobile-menu-toggle {
@@ -185,8 +190,8 @@
     }
 
     /* ==========================================
-       6. Form Elements & Buttons
-       ========================================== */
+        6. Form Elements & Buttons
+        ========================================== */
     .form-group {
         margin-bottom: 15px;
         display: flex;
@@ -241,8 +246,8 @@
     .btn-grey { background: var(--btn-grey); }
 
     /* ==========================================
-       7. Tables & Responsive Wrappers
-       ========================================== */
+        7. Tables & Responsive Wrappers
+        ========================================== */
     .table-responsive {
         width: 100%;
         overflow-x: auto;
@@ -269,8 +274,8 @@
     tr:nth-child(even) { background: rgba(255,255,255,0.02); }
 
     /* ==========================================
-       8. Badges, Cards & Components
-       ========================================== */
+        8. Badges, Cards & Components
+        ========================================== */
     .badge {
         background: var(--primary-blue);
         color: #ffffff;
@@ -570,8 +575,8 @@
     }
 
     /* ==========================================
-       9. Responsive Media Queries (Mobile & Tablet)
-       ========================================== */
+        9. Responsive Media Queries (Mobile & Tablet)
+        ========================================== */
     @media (max-width: 1200px) {
         .party-grid-4col { grid-template-columns: repeat(2, 1fr); }
         .gen-card-grid-3col { grid-template-columns: repeat(2, 1fr); }
@@ -734,6 +739,7 @@
     <button class="tab-btn admin-only" id="tabBtn-items" onclick="switchTab('items')">⚙️ ตั้งค่าไอเทมทั้งหมด</button>
     <button class="tab-btn admin-only" id="tabBtn-jobs" onclick="switchTab('jobs')">⚔️ ตั้งค่าอาชีพ</button>
     <button class="tab-btn admin-only" id="tabBtn-members" onclick="switchTab('members')">➕ เพิ่มสมาชิกใหม่เข้ากิลด์</button>
+	<button class="tab-btn" id="tabBtn-luckyWheel" onclick="switchTab('luckyWheelTab')">🎡 วงล้อสุ่มโชค</button>
     <button class="tab-btn admin-only" id="tabBtn-adminPanel" onclick="switchTab('adminPanel')" style="background: #e74c3c; color: white; border-color: #c0392b;">🛠️ Admin Control Panel</button>
 	</div>
 
@@ -753,6 +759,7 @@
         <button class="tab-btn admin-only" onclick="switchTab('items'); toggleMobileMenu();">⚙️ ตั้งค่าไอเทมทั้งหมด</button>
         <button class="tab-btn admin-only" onclick="switchTab('jobs'); toggleMobileMenu();">⚔️ ตั้งค่าอาชีพ</button>
         <button class="tab-btn admin-only" onclick="switchTab('members'); toggleMobileMenu();">➕ เพิ่มสมาชิกใหม่เข้ากิลด์</button>
+		<button class="tab-btn" onclick="switchTab('luckyWheelTab'); toggleMobileMenu();">🎡 วงล้อสุ่มโชค</button>
         <button class="tab-btn admin-only" onclick="switchTab('adminPanel'); toggleMobileMenu();" style="background: #e74c3c; color: white; border-color: #c0392b;">🛠️ Admin Control Panel</button>
     </div>
 	</div>
@@ -1039,8 +1046,62 @@
                 </div>
             </div>
         </div>
+		
+		<!-- 8. เมนูใหม่: หน้าวงล้อสุ่มโชค -->
+	<div id="luckyWheelTab" class="tab-content">
+    <div class="panel">
+        <h2>🎡 ระบบสุ่มรายชื่อสมาชิก & แจกไอเทม</h2>
+        
+        <!-- แถบเลือกไอเทม -->
+        <div class="filter-bar">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label>เลือกไอเทมที่ต้องการแจก:</label>
+                <select id="wheelItemSelect" onchange="initLuckyWheelData()"></select>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                <button type="button" class="btn-orange" onclick="resetWheelSession()">🔄 รีเซ็ตค่าทั้งหมด</button>
+            </div>
+        </div>
 
-        <!-- 8. Admin Control Panel -->
+        <!-- เลย์เอาต์หลัก 3 คอลัมน์ (ซ้าย: รายชื่อสมาชิก, กลาง: วงล้อสุ่ม, ขวา: รายชื่อที่ได้ของแล้ว) -->
+        <div style="display: grid; grid-template-columns: 280px 1fr 280px; gap: 15px; align-items: start;" class="wheel-layout-grid">
+            
+            <!-- 1. แถบรายชื่อสมาชิก (ด้านซ้าย) - ลบออกได้ -->
+            <div class="panel" style="margin-bottom: 0; background: #0f141f;">
+                <h4 style="border-bottom: 1px solid var(--panel-border); padding-bottom: 8px;">
+                    👥 สมาชิกทั้งหมด (<span id="activeMemberCount">0</span>)
+                </h4>
+                <div class="member-select-list" id="activeMemberList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- รายชื่อจะถูกเติมด้วย JS -->
+                </div>
+            </div>
+
+            <!-- 2. ส่วนวงล้อสุ่ม (ตรงกลาง) -->
+            <div class="panel" style="margin-bottom: 0; text-align: center; background: #0f141f; display: flex; flex-direction: column; justify-content: center; min-height: 380px;">
+                <h3 style="color: var(--gold-light);">🎯 พื้นที่สุ่มผู้โชคดี</h3>
+                <div id="mainWheelDisplayBox" style="background: var(--light-blue); border: 2px solid var(--gold-accent); border-radius: 8px; padding: 30px; margin: 20px 0; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
+                    <span style="color: #888; font-size: 16px;">กดปุ่มด้านล่างเพื่อเริ่มสุ่ม</span>
+                </div>
+                <button type="button" id="mainSpinBtn" class="btn-green" style="font-size: 18px; padding: 12px 24px; width: 100%;" onclick="startMainSpinWheel()">
+                    🎲 สุ่มผู้โชคดี (ตัดรายชื่อออก)
+                </button>
+            </div>
+
+            <!-- 3. แถบรายชื่อที่ได้ของแล้ว (ด้านขวา) -->
+            <div class="panel" style="margin-bottom: 0; background: #0f141f;">
+                <h4 style="border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; color: var(--btn-green);">
+                    🎉 ได้รับไอเทมแล้ว (<span id="winnerMemberCount">0</span>)
+                </h4>
+                <div class="member-select-list" id="winnerMemberList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- รายชื่อผู้ที่ได้ของแล้วจะมาแสดงตรงนี้ -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+        <!-- 9. Admin Control Panel -->
         <div id="adminPanel" class="tab-content">
             <div class="panel">
                 <h2>🛠️ Admin Control Panel (ศูนย์ควบคุมระบบ)</h2>
@@ -2312,7 +2373,7 @@ async function sendRoomWebhook(room) {
                 }
 
                 tbody.innerHTML += `
-                    <tr style="${entry.isSkipped ? 'background: #fdf2e9;' : (entry.pending > 0 ? 'background: #263940;' : '')}">
+                    <tr style="${entry.isSkipped ? 'background: #400140;' : (entry.pending > 0 ? 'background: #263940;' : '')}">
                         <td style="text-align:center;">
                             <input type="checkbox" ${entry.isSkipped ? 'checked' : ''} onchange="toggleSkip(${itemId}, ${entry.memberId})">
                         </td>
@@ -3037,7 +3098,7 @@ function getDisplayQueueList(qList) {
         }
     }
 
-    function switchTab(tabId) {
+	function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         
@@ -3064,6 +3125,11 @@ function getDisplayQueueList(qList) {
         } else if (tabId === 'members') {
             document.getElementById('tabBtn-members').classList.add('active');
             renderMembers();
+        } else if (tabId === 'luckyWheelTab') {
+            // ต่อจาก members ทันที
+            const btnLuckyWheel = document.getElementById('tabBtn-luckyWheel');
+            if (btnLuckyWheel) btnLuckyWheel.classList.add('active');
+            initLuckyWheelTab();
         } else if (tabId === 'adminPanel') {
             document.getElementById('tabBtn-adminPanel').classList.add('active');
         }
@@ -3648,6 +3714,211 @@ function getDisplayQueueList(qList) {
 	function toggleMobileMenu() {
     const navTabs = document.getElementById('navTabsContainer');
     navTabs.classList.toggle('show');
+}
+
+// เก็บสถานะการสุ่มแยกตามไอเทม (Key: itemId, Value: { active: [memberIds], winners: [memberIds] })
+let wheelSessionState = {};
+
+// เริ่มต้นข้อมูลเมื่อเปิดแท็บวงล้อ
+function initLuckyWheelTab() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl) return;
+
+    selectEl.innerHTML = '';
+    
+    // ดึงไอเทมจาก items หรือ queues มาใส่ Dropdown
+    if (typeof items !== 'undefined' && items.length > 0) {
+        items.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name;
+            selectEl.appendChild(opt);
+        });
+    } else if (typeof queues !== 'undefined' && queues.length > 0) {
+        queues.forEach(q => {
+            const opt = document.createElement('option');
+            opt.value = q.itemId;
+            opt.textContent = `Item ID: ${q.itemId}`;
+            selectEl.appendChild(opt);
+        });
+    }
+
+    if (selectEl.options.length > 0) {
+        initLuckyWheelData();
+    } else {
+        document.getElementById('mainWheelDisplayBox').innerHTML = '<span style="color: #e74c3c;">ไม่พบข้อมูลไอเทมในระบบ</span>';
+    }
+}
+
+// โหลดข้อมูลสมาชิกเริ่มต้นเข้าสู่ Session ของไอเทมที่เลือก
+function initLuckyWheelData() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    const itemId = parseInt(selectEl.value);
+
+    // ถ้ายังไม่มีข้อมูลใน Session ของไอเทมนี้ ให้ดึงสมาชิกทั้งหมดจากตัวแปร members มาใส่เริ่มต้น
+    if (!wheelSessionState[itemId]) {
+        let allMemberIds = (typeof members !== 'undefined') ? members.map(m => m.id) : [];
+        wheelSessionState[itemId] = {
+            active: [...allMemberIds],
+            winners: []
+        };
+    }
+
+    renderWheelUI();
+}
+
+// รีเซ็ตข้อมูลเฉพาะไอเทมที่เลือก
+function resetWheelSession() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    if (confirm('คุณต้องการรีเซ็ตรายชื่อทั้งหมดของไอเทมนี้ใช่หรือไม่?')) {
+        const itemId = parseInt(selectEl.value);
+        let allMemberIds = (typeof members !== 'undefined') ? members.map(m => m.id) : [];
+        wheelSessionState[itemId] = {
+            active: [...allMemberIds],
+            winners: []
+        };
+        
+        document.getElementById('mainWheelDisplayBox').innerHTML = '<span style="color: #888; font-size: 16px;">รีเซ็ตเรียบร้อย พร้อมสุ่มใหม่</span>';
+        renderWheelUI();
+    }
+}
+
+// ลบรายชื่อออกจากแถบสมาชิกด้านซ้าย (ไม่ให้มีสิทธิ์สุ่ม)
+function removeActiveMember(memberId) {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    const itemId = parseInt(selectEl.value);
+    const state = wheelSessionState[itemId];
+    if (!state) return;
+
+    // กรองออก
+    state.active = state.active.filter(id => id !== memberId);
+    renderWheelUI();
+}
+
+// อัปเดตการแสดงผลหน้าจอ UI ทั้ง 3 ส่วน
+function renderWheelUI() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    const itemId = parseInt(selectEl.value);
+    const state = wheelSessionState[itemId] || { active: [], winners: [] };
+
+    // 1. เรนเดอร์แถบรายชื่อสมาชิกด้านซ้าย
+    const activeListEl = document.getElementById('activeMemberList');
+    const activeCountEl = document.getElementById('activeMemberCount');
+    activeListEl.innerHTML = '';
+    activeCountEl.innerText = state.active.length;
+
+    if (state.active.length === 0) {
+        activeListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ไม่มีรายชื่อเหลือแล้ว</div>`;
+    } else {
+        state.active.forEach(id => {
+            const m = members.find(mem => mem.id === id);
+            const mName = m ? m.name : `ID: ${id}`;
+            const div = document.createElement('div');
+            div.className = 'member-select-item';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.padding = '6px 8px';
+            div.innerHTML = `
+                <span>${mName}</span>
+                <button type="button" class="btn-red" style="padding: 2px 8px; font-size: 11px;" onclick="removeActiveMember(${id})">ลบ</button>
+            `;
+            activeListEl.appendChild(div);
+        });
+    }
+
+    // 2. เรนเดอร์แถบรายชื่อที่ได้ของแล้วด้านขวา
+    const winnerListEl = document.getElementById('winnerMemberList');
+    const winnerCountEl = document.getElementById('winnerMemberCount');
+    winnerListEl.innerHTML = '';
+    winnerCountEl.innerText = state.winners.length;
+
+    if (state.winners.length === 0) {
+        winnerListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ยังไม่มีผู้ได้รับไอเทม</div>`;
+    } else {
+        state.winners.forEach(id => {
+            const m = members.find(mem => mem.id === id);
+            const mName = m ? m.name : `ID: ${id}`;
+            const div = document.createElement('div');
+            div.className = 'member-select-item';
+            div.style.padding = '6px 8px';
+            div.style.color = 'var(--btn-green)';
+            div.style.fontWeight = 'bold';
+            div.innerHTML = `<span>🎁 ${mName}</span>`;
+            winnerListEl.appendChild(div);
+        });
+    }
+}
+
+// ฟังก์ชันเริ่มสุ่ม (เอฟเฟกต์หมุนชื่อ + ตัดรายชื่อซ้ายย้ายไปขวาอัตโนมัติ)
+function startMainSpinWheel() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) {
+        alert('กรุณาเลือกไอเทมก่อนสุ่ม!');
+        return;
+    }
+
+    const itemId = parseInt(selectEl.value);
+    const state = wheelSessionState[itemId];
+
+    if (!state || state.active.length === 0) {
+        alert('ไม่มีรายชื่อเหลือให้สุ่มแล้วครับ! กรุณารีเซ็ตหรือเพิ่มสมาชิก');
+        return;
+    }
+
+    const spinBtn = document.getElementById('mainSpinBtn');
+    const displayBox = document.getElementById('mainWheelDisplayBox');
+    spinBtn.disabled = true;
+
+    let counter = 0;
+    const totalSteps = 25; // จำนวนรอบกระพริบชื่อ
+    let speed = 40;
+
+    function shuffleStep() {
+        const randomIndex = Math.floor(Math.random() * state.active.length);
+        const randomMemberId = state.active[randomIndex];
+        const m = members.find(mem => mem.id === randomMemberId);
+        
+        displayBox.innerHTML = `
+            <span style="font-size: 14px; color: #888;">กำลังสุ่มผู้โชคดี...</span>
+            <span style="color: #f1c40f; font-size: 26px;">${m ? m.name : '...'}</span>
+        `;
+        counter++;
+
+        if (counter < totalSteps) {
+            speed += 10; // ค่อยๆ ช้าลง
+            setTimeout(shuffleStep, speed);
+        } else {
+            // สุ่มผู้ชนะตัวจริง
+            const finalIndex = Math.floor(Math.random() * state.active.length);
+            const winnerId = state.active[finalIndex];
+            const winnerMember = members.find(mem => mem.id === winnerId);
+
+            displayBox.innerHTML = `
+                <span style="font-size: 16px; color: #2ecc71;">🎉 ผู้โชคดีได้รับไอเทม 🎉</span>
+                <span style="color: #2ecc71; font-size: 32px; text-shadow: 0 0 10px rgba(46,204,113,0.6);">${winnerMember ? winnerMember.name : 'Unknown'}</span>
+            `;
+
+            // ตัดชื่อออกจาก Active และย้ายไป Winners ทันที
+            state.active = state.active.filter(id => id !== winnerId);
+            state.winners.push(winnerId);
+
+            // อัปเดตหน้าจอ UI ทั้งสองฝั่ง
+            renderWheelUI();
+
+            spinBtn.disabled = false;
+        }
+    }
+
+    shuffleStep();
 }
 </script>
 </body>
