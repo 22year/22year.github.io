@@ -1053,38 +1053,51 @@
         <h2>🎡 ระบบสุ่มรายชื่อสมาชิก & แจกไอเทม</h2>
         
         <!-- แถบเลือกไอเทม -->
-        <div class="filter-bar">
-            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+        <div class="filter-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0; min-width: 250px;">
                 <label>เลือกไอเทมที่ต้องการแจก:</label>
                 <select id="wheelItemSelect" onchange="initLuckyWheelData()"></select>
             </div>
-            <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div>
                 <button type="button" class="btn-orange" onclick="resetWheelSession()">🔄 รีเซ็ตค่าทั้งหมด</button>
             </div>
         </div>
 
-        <!-- เลย์เอาต์หลัก 3 คอลัมน์ (ซ้าย: รายชื่อสมาชิก, กลาง: วงล้อสุ่ม, ขวา: รายชื่อที่ได้ของแล้ว) -->
-        <div style="display: grid; grid-template-columns: 280px 1fr 280px; gap: 15px; align-items: start;" class="wheel-layout-grid">
+        <!-- เลย์เอาต์หลัก 3 คอลัมน์/ส่วน -->
+        <div style="display: grid; grid-template-columns: 260px 260px 1fr 260px; gap: 15px; align-items: start;" class="wheel-layout-grid">
             
-            <!-- 1. แถบรายชื่อสมาชิก (ด้านซ้าย) - ลบออกได้ -->
+            <!-- 1. รายชื่อสมาชิกทั้งหมด (เลือกเพิ่มเข้าวงล้อ) -->
             <div class="panel" style="margin-bottom: 0; background: #0f141f;">
                 <h4 style="border-bottom: 1px solid var(--panel-border); padding-bottom: 8px;">
-                    👥 สมาชิกทั้งหมด (<span id="activeMemberCount">0</span>)
+                    👥 สมาชิกทั้งหมด (<span id="allMemberCount">0</span>)
                 </h4>
-                <div class="member-select-list" id="activeMemberList" style="max-height: 400px; overflow-y: auto;">
-                    <!-- รายชื่อจะถูกเติมด้วย JS -->
+                <div class="member-select-list" id="allMemberList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- รายชื่อทั้งหมดพร้อมปุ่มเพิ่ม -->
                 </div>
             </div>
 
-            <!-- 2. ส่วนวงล้อสุ่ม (ตรงกลาง) -->
+            <!-- 2. รายชื่อที่ดึงเข้ามาอยู่ในวงล้อแล้ว -->
+            <div class="panel" style="margin-bottom: 0; background: #0f141f;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; margin-bottom: 8px;">
+                    <h4 style="margin: 0; color: var(--gold-light);">
+                        🎯 ในวงล้อสุ่ม (<span id="activeMemberCount">0</span>)
+                    </h4>
+                    <button type="button" class="btn-orange" onclick="shuffleActiveWheelList()" style="font-size: 11px; padding: 3px 8px;" title="สลับลำดับรายชื่อใหม่ทั้งหมด">🔀 สลับลำดับ</button>
+                </div>
+                <div class="member-select-list" id="activeMemberList" style="max-height: 400px; overflow-y: auto;">
+                    <!-- รายชื่อที่ดึงเข้ามา -->
+                </div>
+            </div>
+
+            <!-- 3. ส่วนวงล้อสุ่ม (ตรงกลาง) -->
             <div class="panel" style="margin-bottom: 0; text-align: center; background: #0f141f; display: flex; flex-direction: column; justify-content: center; min-height: 380px;">
                 <h3 style="color: var(--gold-light);">🎯 พื้นที่สุ่มผู้โชคดี</h3>
                 
                 <div id="mainWheelDisplayBox" style="background: var(--light-blue); border: 2px solid var(--gold-accent); border-radius: 8px; padding: 25px; margin: 15px 0; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
-                    <span style="color: #888; font-size: 16px;">กำหนดจำนวนแล้วกดปุ่มสุ่มด้านล่าง</span>
+                    <span style="color: #888; font-size: 16px;">เพิ่มรายชื่อเข้าวงล้อแล้วกดสุ่ม</span>
                 </div>
 
-                <!-- เพิ่มฟอร์มกำหนดจำนวนสุ่ม -->
+                <!-- ฟอร์มกำหนดจำนวนสุ่ม -->
                 <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                     <label for="spinCountInput" style="font-size: 14px; color: var(--text-muted);">จำนวนที่ต้องการสุ่ม:</label>
                     <input type="number" id="spinCountInput" value="1" min="1" max="100" style="width: 80px; text-align: center;">
@@ -1095,13 +1108,13 @@
                 </button>
             </div>
 
-            <!-- 3. แถบรายชื่อที่ได้ของแล้ว (ด้านขวา) -->
+            <!-- 4. แถบรายชื่อที่ได้ของแล้ว (ด้านขวา) -->
             <div class="panel" style="margin-bottom: 0; background: #0f141f;">
                 <h4 style="border-bottom: 1px solid var(--panel-border); padding-bottom: 8px; color: var(--btn-green);">
                     🎉 ได้รับไอเทมแล้ว (<span id="winnerMemberCount">0</span>)
                 </h4>
                 <div class="member-select-list" id="winnerMemberList" style="max-height: 400px; overflow-y: auto;">
-                    <!-- รายชื่อผู้ที่ได้ของแล้วจะมาแสดงตรงนี้ -->
+                    <!-- รายชื่อผู้ที่ได้ของแล้ว -->
                 </div>
             </div>
 
@@ -3734,7 +3747,6 @@ function initLuckyWheelTab() {
 
     selectEl.innerHTML = '';
     
-    // ดึงไอเทมจาก items หรือ queues มาใส่ Dropdown
     if (typeof items !== 'undefined' && items.length > 0) {
         items.forEach(item => {
             const opt = document.createElement('option');
@@ -3765,11 +3777,9 @@ function initLuckyWheelData() {
 
     const itemId = parseInt(selectEl.value);
 
-    // ถ้ายังไม่มีข้อมูลใน Session ของไอเทมนี้ ให้ดึงสมาชิกทั้งหมดจากตัวแปร members มาใส่เริ่มต้น
     if (!wheelSessionState[itemId]) {
-        let allMemberIds = (typeof members !== 'undefined') ? members.map(m => m.id) : [];
         wheelSessionState[itemId] = {
-            active: [...allMemberIds],
+            active: [],
             winners: []
         };
     }
@@ -3777,26 +3787,8 @@ function initLuckyWheelData() {
     renderWheelUI();
 }
 
-// รีเซ็ตข้อมูลเฉพาะไอเทมที่เลือก
-function resetWheelSession() {
-    const selectEl = document.getElementById('wheelItemSelect');
-    if (!selectEl || !selectEl.value) return;
-
-    if (confirm('คุณต้องการรีเซ็ตรายชื่อทั้งหมดของไอเทมนี้ใช่หรือไม่?')) {
-        const itemId = parseInt(selectEl.value);
-        let allMemberIds = (typeof members !== 'undefined') ? members.map(m => m.id) : [];
-        wheelSessionState[itemId] = {
-            active: [...allMemberIds],
-            winners: []
-        };
-        
-        document.getElementById('mainWheelDisplayBox').innerHTML = '<span style="color: #888; font-size: 16px;">รีเซ็ตเรียบร้อย พร้อมสุ่มใหม่</span>';
-        renderWheelUI();
-    }
-}
-
-// ลบรายชื่อออกจากแถบสมาชิกด้านซ้าย (ไม่ให้มีสิทธิ์สุ่ม)
-function removeActiveMember(memberId) {
+// เพิ่มสมาชิกเข้าวงล้อจากตารางซ้ายสุด
+function addMemberToWheel(memberId) {
     const selectEl = document.getElementById('wheelItemSelect');
     if (!selectEl || !selectEl.value) return;
 
@@ -3804,12 +3796,68 @@ function removeActiveMember(memberId) {
     const state = wheelSessionState[itemId];
     if (!state) return;
 
-    // กรองออก
+    if (!state.active.includes(memberId) && !state.winners.includes(memberId)) {
+        state.active.push(memberId);
+        renderWheelUI();
+    }
+}
+
+// นำสมาชิกออกจากวงล้อ (กลับไปอยู่ฝั่งซ้ายสุด)
+function removeMemberFromWheel(memberId) {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    const itemId = parseInt(selectEl.value);
+    const state = wheelSessionState[itemId];
+    if (!state) return;
+
     state.active = state.active.filter(id => id !== memberId);
     renderWheelUI();
 }
 
-// อัปเดตการแสดงผลหน้าจอ UI ทั้ง 3 ส่วน
+// ฟังก์ชันสลับลำดับรายชื่อในวงล้อ (Shuffle)
+function shuffleActiveWheelList() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    const itemId = parseInt(selectEl.value);
+    const state = wheelSessionState[itemId];
+    if (!state || state.active.length <= 1) {
+        alert('ต้องมีรายชื่อในวงล้ออย่างน้อย 2 คนจึงจะสามารถสลับลำดับได้ครับ');
+        return;
+    }
+
+    // Fisher-Yates Shuffle Algorithm สำหรับสลับตำแหน่ง Array
+    for (let i = state.active.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [state.active[i], state.active[j]] = [state.active[j], state.active[i]];
+    }
+
+    renderWheelUI();
+    
+    // แจ้งเตือนสั้นๆ หรือเปลี่ยนข้อความในกล่องแสดงผล
+    const displayBox = document.getElementById('mainWheelDisplayBox');
+    displayBox.innerHTML = `<span style="color: #f1c40f; font-size: 15px;">🔀 สลับลำดับรายชื่อในวงล้อเรียบร้อยแล้ว!</span>`;
+}
+
+// รีเซ็ตข้อมูลเฉพาะไอเทมที่เลือก
+function resetWheelSession() {
+    const selectEl = document.getElementById('wheelItemSelect');
+    if (!selectEl || !selectEl.value) return;
+
+    if (confirm('คุณต้องการรีเซ็ตรายชื่อวงล้อทั้งหมดของไอเทมนี้ใช่หรือไม่?')) {
+        const itemId = parseInt(selectEl.value);
+        wheelSessionState[itemId] = {
+            active: [],
+            winners: []
+        };
+        
+        document.getElementById('mainWheelDisplayBox').innerHTML = '<span style="color: #888; font-size: 16px;">รีเซ็ตเรียบร้อย เลือกรายชื่อเข้าวงล้อใหม่ได้เลย</span>';
+        renderWheelUI();
+    }
+}
+
+// อัปเดตการแสดงผลหน้าจอ UI ทั้งหมด (4 ส่วน)
 function renderWheelUI() {
     const selectEl = document.getElementById('wheelItemSelect');
     if (!selectEl || !selectEl.value) return;
@@ -3817,17 +3865,53 @@ function renderWheelUI() {
     const itemId = parseInt(selectEl.value);
     const state = wheelSessionState[itemId] || { active: [], winners: [] };
 
-    // 1. เรนเดอร์แถบรายชื่อสมาชิกด้านซ้าย
+    const allMembers = (typeof members !== 'undefined') ? members : [];
+
+    // 1. เรนเดอร์แถบรายชื่อสมาชิกทั้งหมด (ซ้ายสุด)
+    const allListEl = document.getElementById('allMemberList');
+    const allCountEl = document.getElementById('allMemberCount');
+    allListEl.innerHTML = '';
+    allCountEl.innerText = allMembers.length;
+
+    if (allMembers.length === 0) {
+        allListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ไม่มีข้อมูลสมาชิก</div>`;
+    } else {
+        allMembers.forEach(m => {
+            const isInWheel = state.active.includes(m.id);
+            const isWinner = state.winners.includes(m.id);
+
+            const div = document.createElement('div');
+            div.className = 'member-select-item';
+            div.style.display = 'flex';
+            div.style.justifyContent = 'space-between';
+            div.style.alignItems = 'center';
+            div.style.padding = '6px 8px';
+
+            let actionBtn = '';
+            if (isWinner) {
+                actionBtn = `<span style="font-size: 11px; color: var(--btn-green);">ได้ของแล้ว</span>`;
+            } else if (isInWheel) {
+                actionBtn = `<span style="font-size: 11px; color: var(--gold-light);">อยู่ในวงล้อ</span>`;
+            } else {
+                actionBtn = `<button type="button" class="btn-green" style="padding: 2px 8px; font-size: 11px;" onclick="addMemberToWheel(${m.id})">➕ เพิ่ม</button>`;
+            }
+
+            div.innerHTML = `<span>${m.name}</span> ${actionBtn}`;
+            allListEl.appendChild(div);
+        });
+    }
+
+    // 2. เรนเดอร์แถบรายชื่อที่อยู่ในวงล้อ (คอลัมน์ที่ 2)
     const activeListEl = document.getElementById('activeMemberList');
     const activeCountEl = document.getElementById('activeMemberCount');
     activeListEl.innerHTML = '';
     activeCountEl.innerText = state.active.length;
 
     if (state.active.length === 0) {
-        activeListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ไม่มีรายชื่อเหลือแล้ว</div>`;
+        activeListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ยังไม่มีรายชื่อในวงล้อ</div>`;
     } else {
         state.active.forEach(id => {
-            const m = members.find(mem => mem.id === id);
+            const m = allMembers.find(mem => mem.id === id);
             const mName = m ? m.name : `ID: ${id}`;
             const div = document.createElement('div');
             div.className = 'member-select-item';
@@ -3837,13 +3921,13 @@ function renderWheelUI() {
             div.style.padding = '6px 8px';
             div.innerHTML = `
                 <span>${mName}</span>
-                <button type="button" class="btn-red" style="padding: 2px 8px; font-size: 11px;" onclick="removeActiveMember(${id})">ลบ</button>
+                <button type="button" class="btn-red" style="padding: 2px 8px; font-size: 11px;" onclick="removeMemberFromWheel(${id})">เอาออก</button>
             `;
             activeListEl.appendChild(div);
         });
     }
 
-    // 2. เรนเดอร์แถบรายชื่อที่ได้ของแล้วด้านขวา
+    // 3. เรนเดอร์แถบรายชื่อที่ได้ของแล้ว (ขวาสุด)
     const winnerListEl = document.getElementById('winnerMemberList');
     const winnerCountEl = document.getElementById('winnerMemberCount');
     winnerListEl.innerHTML = '';
@@ -3853,7 +3937,7 @@ function renderWheelUI() {
         winnerListEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 10px;">ยังไม่มีผู้ได้รับไอเทม</div>`;
     } else {
         state.winners.forEach(id => {
-            const m = members.find(mem => mem.id === id);
+            const m = allMembers.find(mem => mem.id === id);
             const mName = m ? m.name : `ID: ${id}`;
             const div = document.createElement('div');
             div.className = 'member-select-item';
@@ -3878,17 +3962,15 @@ function startMainSpinWheel() {
     const state = wheelSessionState[itemId];
 
     if (!state || state.active.length === 0) {
-        alert('ไม่มีรายชื่อเหลือให้สุ่มแล้วครับ! กรุณารีเซ็ตหรือเพิ่มสมาชิก');
+        alert('กรุณาเพิ่มรายชื่อเข้าวงล้ออย่างน้อย 1 คนก่อนสุ่มครับ!');
         return;
     }
 
-    // ดึงค่าจำนวนคนที่ต้องการสุ่มจากช่อง input
     const countInput = document.getElementById('spinCountInput');
     let targetCount = parseInt(countInput ? countInput.value : 1) || 1;
 
-    // เช็คไม่ให้สุ่มเกินจำนวนคนที่มีจริง
     if (targetCount > state.active.length) {
-        alert(`รายชื่อไม่พอสำหรับสุ่ม ${targetCount} คน (เหลืออยู่ ${state.active.length} คน) ระบบจะสุ่มเท่าที่มี`);
+        alert(`รายชื่อในวงล้อไม่พอสำหรับสุ่ม ${targetCount} คน (มีอยู่ ${state.active.length} คน) ระบบจะสุ่มเท่าที่มี`);
         targetCount = state.active.length;
     }
 
@@ -3898,8 +3980,8 @@ function startMainSpinWheel() {
 
     let currentRoundDone = 0;
     let accumulatedWinners = [];
+    const allMembers = (typeof members !== 'undefined') ? members : [];
 
-    // ฟังก์ชันย่อยสำหรับสุ่มทีละ 1 คน วนลูปต่อเนื่องจนครบ targetCount
     function spinOneByOne() {
         if (currentRoundDone >= targetCount || state.active.length === 0) {
             spinBtn.disabled = false;
@@ -3907,13 +3989,13 @@ function startMainSpinWheel() {
         }
 
         let counter = 0;
-        const totalSteps = 15; // จำนวนรอบกระพริบต่อ 1 คน
+        const totalSteps = 15;
         let speed = 30;
 
         function shuffleStep() {
             const randomIndex = Math.floor(Math.random() * state.active.length);
             const randomMemberId = state.active[randomIndex];
-            const m = members.find(mem => mem.id === randomMemberId);
+            const m = allMembers.find(mem => mem.id === randomMemberId);
             
             displayBox.innerHTML = `
                 <span style="font-size: 13px; color: #888;">กำลังสุ่มคนที่ ${currentRoundDone + 1} / ${targetCount}...</span>
@@ -3925,18 +4007,15 @@ function startMainSpinWheel() {
                 speed += 6;
                 setTimeout(shuffleStep, speed);
             } else {
-                // ได้ผู้ชนะ 1 คนในรอบนี้ ตัดออกจาก active ทันที แล้วย้ายไป winners
                 const finalIndex = Math.floor(Math.random() * state.active.length);
                 const winnerId = state.active.splice(finalIndex, 1)[0];
                 state.winners.push(winnerId);
 
-                const winnerMember = members.find(m => m.id === winnerId);
+                const winnerMember = allMembers.find(m => m.id === winnerId);
                 accumulatedWinners.push(winnerMember ? winnerMember.name : 'Unknown');
 
-                // อัปเดตตารางหน้าจอซ้าย-ขวาแบบเรียลไทม์
                 renderWheelUI();
 
-                // แสดงผลรายชื่อที่ได้สะสม
                 displayBox.innerHTML = `
                     <span style="font-size: 14px; color: #2ecc71;">🎉 ได้รับแล้ว (${currentRoundDone + 1}/${targetCount}) 🎉</span>
                     <span style="color: #2ecc71; font-size: 20px; text-shadow: 0 0 8px rgba(46,204,113,0.6); margin-top: 5px;">${accumulatedWinners.join(', ')}</span>
@@ -3944,7 +4023,6 @@ function startMainSpinWheel() {
 
                 currentRoundDone++;
 
-                // หน่วงเวลา 0.8 วินาทีก่อนไปสุ่มคนถัดไปอัตโนมัติจนครบ
                 if (currentRoundDone < targetCount && state.active.length > 0) {
                     setTimeout(spinOneByOne, 800);
                 } else {
