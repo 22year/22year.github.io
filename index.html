@@ -1048,7 +1048,7 @@
         </div>
 		
 		<!-- 8. เมนูใหม่: หน้าวงล้อสุ่มโชค -->
-	<div id="luckyWheelTab" class="tab-content">
+<div id="luckyWheelTab" class="tab-content">
     <div class="panel">
         <h2>🎡 ระบบสุ่มรายชื่อสมาชิก & แจกไอเทม</h2>
         
@@ -1079,11 +1079,19 @@
             <!-- 2. ส่วนวงล้อสุ่ม (ตรงกลาง) -->
             <div class="panel" style="margin-bottom: 0; text-align: center; background: #0f141f; display: flex; flex-direction: column; justify-content: center; min-height: 380px;">
                 <h3 style="color: var(--gold-light);">🎯 พื้นที่สุ่มผู้โชคดี</h3>
-                <div id="mainWheelDisplayBox" style="background: var(--light-blue); border: 2px solid var(--gold-accent); border-radius: 8px; padding: 30px; margin: 20px 0; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
-                    <span style="color: #888; font-size: 16px;">กดปุ่มด้านล่างเพื่อเริ่มสุ่ม</span>
+                
+                <div id="mainWheelDisplayBox" style="background: var(--light-blue); border: 2px solid var(--gold-accent); border-radius: 8px; padding: 25px; margin: 15px 0; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
+                    <span style="color: #888; font-size: 16px;">กำหนดจำนวนแล้วกดปุ่มสุ่มด้านล่าง</span>
                 </div>
+
+                <!-- เพิ่มฟอร์มกำหนดจำนวนสุ่ม -->
+                <div style="display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                    <label for="spinCountInput" style="font-size: 14px; color: var(--text-muted);">จำนวนที่ต้องการสุ่ม:</label>
+                    <input type="number" id="spinCountInput" value="1" min="1" max="100" style="width: 80px; text-align: center;">
+                </div>
+
                 <button type="button" id="mainSpinBtn" class="btn-green" style="font-size: 18px; padding: 12px 24px; width: 100%;" onclick="startMainSpinWheel()">
-                    🎲 สุ่มผู้โชคดี (ตัดรายชื่อออก)
+                    🎲 สุ่มผู้โชคดี (ตามจำนวน)
                 </button>
             </div>
 
@@ -3858,7 +3866,7 @@ function renderWheelUI() {
     }
 }
 
-// ฟังก์ชันเริ่มสุ่ม (เอฟเฟกต์หมุนชื่อ + ตัดรายชื่อซ้ายย้ายไปขวาอัตโนมัติ)
+// ฟังก์ชันเริ่มสุ่มแบบอัตโนมัติทีละคนต่อเนื่องจนครบจำนวนที่ระบุ
 function startMainSpinWheel() {
     const selectEl = document.getElementById('wheelItemSelect');
     if (!selectEl || !selectEl.value) {
@@ -3874,51 +3882,81 @@ function startMainSpinWheel() {
         return;
     }
 
+    // ดึงค่าจำนวนคนที่ต้องการสุ่มจากช่อง input
+    const countInput = document.getElementById('spinCountInput');
+    let targetCount = parseInt(countInput ? countInput.value : 1) || 1;
+
+    // เช็คไม่ให้สุ่มเกินจำนวนคนที่มีจริง
+    if (targetCount > state.active.length) {
+        alert(`รายชื่อไม่พอสำหรับสุ่ม ${targetCount} คน (เหลืออยู่ ${state.active.length} คน) ระบบจะสุ่มเท่าที่มี`);
+        targetCount = state.active.length;
+    }
+
     const spinBtn = document.getElementById('mainSpinBtn');
     const displayBox = document.getElementById('mainWheelDisplayBox');
     spinBtn.disabled = true;
 
-    let counter = 0;
-    const totalSteps = 25; // จำนวนรอบกระพริบชื่อ
-    let speed = 40;
+    let currentRoundDone = 0;
+    let accumulatedWinners = [];
 
-    function shuffleStep() {
-        const randomIndex = Math.floor(Math.random() * state.active.length);
-        const randomMemberId = state.active[randomIndex];
-        const m = members.find(mem => mem.id === randomMemberId);
-        
-        displayBox.innerHTML = `
-            <span style="font-size: 14px; color: #888;">กำลังสุ่มผู้โชคดี...</span>
-            <span style="color: #f1c40f; font-size: 26px;">${m ? m.name : '...'}</span>
-        `;
-        counter++;
-
-        if (counter < totalSteps) {
-            speed += 10; // ค่อยๆ ช้าลง
-            setTimeout(shuffleStep, speed);
-        } else {
-            // สุ่มผู้ชนะตัวจริง
-            const finalIndex = Math.floor(Math.random() * state.active.length);
-            const winnerId = state.active[finalIndex];
-            const winnerMember = members.find(mem => mem.id === winnerId);
-
-            displayBox.innerHTML = `
-                <span style="font-size: 16px; color: #2ecc71;">🎉 ผู้โชคดีได้รับไอเทม 🎉</span>
-                <span style="color: #2ecc71; font-size: 32px; text-shadow: 0 0 10px rgba(46,204,113,0.6);">${winnerMember ? winnerMember.name : 'Unknown'}</span>
-            `;
-
-            // ตัดชื่อออกจาก Active และย้ายไป Winners ทันที
-            state.active = state.active.filter(id => id !== winnerId);
-            state.winners.push(winnerId);
-
-            // อัปเดตหน้าจอ UI ทั้งสองฝั่ง
-            renderWheelUI();
-
+    // ฟังก์ชันย่อยสำหรับสุ่มทีละ 1 คน วนลูปต่อเนื่องจนครบ targetCount
+    function spinOneByOne() {
+        if (currentRoundDone >= targetCount || state.active.length === 0) {
             spinBtn.disabled = false;
+            return;
         }
+
+        let counter = 0;
+        const totalSteps = 15; // จำนวนรอบกระพริบต่อ 1 คน
+        let speed = 30;
+
+        function shuffleStep() {
+            const randomIndex = Math.floor(Math.random() * state.active.length);
+            const randomMemberId = state.active[randomIndex];
+            const m = members.find(mem => mem.id === randomMemberId);
+            
+            displayBox.innerHTML = `
+                <span style="font-size: 13px; color: #888;">กำลังสุ่มคนที่ ${currentRoundDone + 1} / ${targetCount}...</span>
+                <span style="color: #f1c40f; font-size: 24px;">${m ? m.name : '...'}</span>
+            `;
+            counter++;
+
+            if (counter < totalSteps) {
+                speed += 6;
+                setTimeout(shuffleStep, speed);
+            } else {
+                // ได้ผู้ชนะ 1 คนในรอบนี้ ตัดออกจาก active ทันที แล้วย้ายไป winners
+                const finalIndex = Math.floor(Math.random() * state.active.length);
+                const winnerId = state.active.splice(finalIndex, 1)[0];
+                state.winners.push(winnerId);
+
+                const winnerMember = members.find(m => m.id === winnerId);
+                accumulatedWinners.push(winnerMember ? winnerMember.name : 'Unknown');
+
+                // อัปเดตตารางหน้าจอซ้าย-ขวาแบบเรียลไทม์
+                renderWheelUI();
+
+                // แสดงผลรายชื่อที่ได้สะสม
+                displayBox.innerHTML = `
+                    <span style="font-size: 14px; color: #2ecc71;">🎉 ได้รับแล้ว (${currentRoundDone + 1}/${targetCount}) 🎉</span>
+                    <span style="color: #2ecc71; font-size: 20px; text-shadow: 0 0 8px rgba(46,204,113,0.6); margin-top: 5px;">${accumulatedWinners.join(', ')}</span>
+                `;
+
+                currentRoundDone++;
+
+                // หน่วงเวลา 0.8 วินาทีก่อนไปสุ่มคนถัดไปอัตโนมัติจนครบ
+                if (currentRoundDone < targetCount && state.active.length > 0) {
+                    setTimeout(spinOneByOne, 800);
+                } else {
+                    spinBtn.disabled = false;
+                }
+            }
+        }
+
+        shuffleStep();
     }
 
-    shuffleStep();
+    spinOneByOne();
 }
 </script>
 </body>
